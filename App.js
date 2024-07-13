@@ -8,6 +8,7 @@ import Medicine from './src/pages/Medicine';
 import Prescription from './src/pages/Prescription';
 import MyPage from './src/pages/MyPage';
 import LoginPage from './src/pages/Login/LoginPage';
+import MyInfo from './src/pages/MyInfo';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -128,6 +129,7 @@ const App = () => {
           // 로그인 되었을때의 페이지
           <>
             <Stack.Screen name='Medimate' component={MainScreen} />
+            <Stack.Screen name='MyInfo' component={MyInfo} />
           </>
         ) : (
           // 로그인 안되었을때의 페이지
