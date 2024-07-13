@@ -9,6 +9,7 @@ import Prescription from './src/pages/Prescription';
 import MyPage from './src/pages/MyPage';
 import LoginPage from './src/pages/Login/LoginPage';
 import MyInfo from './src/pages/MyInfo';
+import PrescriptionScan from './src/pages/PrescriptionScan';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -130,14 +131,21 @@ const App = () => {
           <>
             <Stack.Screen name='Medimate' component={MainScreen} />
             <Stack.Screen name='MyInfo' component={MyInfo} />
+            <Stack.Screen
+              name='PrescriptionScan'
+              component={PrescriptionScan}
+              options={{
+                title: '처방전 스캔',
+              }}
+            />
           </>
         ) : (
           // 로그인 안되었을때의 페이지
           <>
-            <Stack.Screen 
-            name='LoginPage' 
-            component={LoginPage}
-            options={{ headerShown: false }} 
+            <Stack.Screen
+              name='LoginPage'
+              component={LoginPage}
+              options={{ headerShown: false }}
             />
           </>
         )}
@@ -157,7 +165,7 @@ const styles = StyleSheet.create({
     height: 33,
     marginTop: 5,
   },
-  
+
 });
 
 export default App;
