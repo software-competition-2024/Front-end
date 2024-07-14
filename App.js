@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { Text, View, StyleSheet, Image } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import React, {useState} from 'react';
+import {Text, View, StyleSheet, Image} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from './src/pages/Home';
 import Medicine from './src/pages/Medicine';
 import Prescription from './src/pages/Prescription';
 import MyPage from './src/pages/MyPage';
 import LoginPage from './src/pages/Login/LoginPage';
+import SignUpPage from './src/pages/SignUp/SignUpPage';
+import NextSignUpStep from './src/pages/SignUp/NextSignUpStep';
+import StartPage from './src/pages/Start/StartPage';
 import MyInfo from './src/pages/MyInfo';
 import PrescriptionScan from './src/pages/PrescriptionScan';
 
@@ -39,14 +42,13 @@ const MainScreen = () => {
         },
         tabBarHideOnKeyboard: true,
         tabBarShowLabel: false,
-      }}
-    >
+      }}>
       <Tab.Screen
         name="Prescription"
         component={Prescription}
         options={{
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <Image
               source={
                 focused
@@ -63,7 +65,7 @@ const MainScreen = () => {
         component={Medicine}
         options={{
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <Image
               source={
                 focused
@@ -80,7 +82,7 @@ const MainScreen = () => {
         component={Home}
         options={{
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <Image
               source={
                 focused
@@ -97,7 +99,7 @@ const MainScreen = () => {
         component={MyPage}
         options={{
           headerShown: false,
-          tabBarIcon: ({ focused }) => (
+          tabBarIcon: ({focused}) => (
             <Image
               source={
                 focused
@@ -114,21 +116,21 @@ const MainScreen = () => {
 };
 
 const App = () => {
-  const [isLogged, setIsLogged] = useState(true);
+  const [isLogged, setIsLogged] = useState(false);
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName={isLogged ? 'Medimate' : 'LoginPage'}
+        initialRouteName={isLogged ? 'MainScreen' : 'LoginPage'}
         screenOptions={{
-          headerStyle: { backgroundColor: '#1F2178' },
+          headerStyle: {backgroundColor: '#1F2178'},
           headerTitleAlign: 'center',
-          headerTitleStyle: { color: '#FFFFFF', fontWeight: 'bold' },
-        }}
-      >
+          headerTitleStyle: {color: '#FFFFFF', fontWeight: 'bold'},
+        }}>
         {isLogged ? (
           // 로그인 되었을때의 페이지
           <>
+            //<Stack.Screen name="MainScreen" component={MainScreen} />
             <Stack.Screen name='Medimate' component={MainScreen} />
             <Stack.Screen name='MyInfo' component={MyInfo} />
             <Stack.Screen
@@ -143,16 +145,31 @@ const App = () => {
           // 로그인 안되었을때의 페이지
           <>
             <Stack.Screen
-              name='LoginPage'
+              name="LoginPage"
               component={LoginPage}
-              options={{ headerShown: false }}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="SignUpPage"
+              component={SignUpPage}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="NextSignUpStep"
+              component={NextSignUpStep}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="StartPage"
+              component={StartPage}
+              options={{headerShown: false}}
             />
           </>
         )}
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 const styles = StyleSheet.create({
   tabBarIcon: {
