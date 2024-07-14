@@ -11,6 +11,8 @@ import LoginPage from './src/pages/Login/LoginPage';
 import SignUpPage from './src/pages/SignUp/SignUpPage';
 import NextSignUpStep from './src/pages/SignUp/NextSignUpStep';
 import StartPage from './src/pages/Start/StartPage';
+import MyInfo from './src/pages/MyInfo';
+import PrescriptionScan from './src/pages/PrescriptionScan';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -128,7 +130,16 @@ const App = () => {
         {isLogged ? (
           // 로그인 되었을때의 페이지
           <>
-            <Stack.Screen name="MainScreen" component={MainScreen} />
+            //<Stack.Screen name="MainScreen" component={MainScreen} />
+            <Stack.Screen name='Medimate' component={MainScreen} />
+            <Stack.Screen name='MyInfo' component={MyInfo} />
+            <Stack.Screen
+              name='PrescriptionScan'
+              component={PrescriptionScan}
+              options={{
+                title: '처방전 스캔',
+              }}
+            />
           </>
         ) : (
           // 로그인 안되었을때의 페이지
@@ -171,6 +182,7 @@ const styles = StyleSheet.create({
     height: 33,
     marginTop: 5,
   },
+
 });
 
 export default App;
