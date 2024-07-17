@@ -11,6 +11,7 @@ import LoginPage from './src/pages/Login/LoginPage';
 import SignUpPage from './src/pages/SignUp/SignUpPage';
 import NextSignUpStep from './src/pages/SignUp/NextSignUpStep';
 import StartPage from './src/pages/Start/StartPage';
+import MedicineDetail from './src/pages/MedicineDetail';
 import MyInfo from './src/pages/MyInfo';
 import PrescriptionScan from './src/pages/PrescriptionScan';
 
@@ -130,6 +131,16 @@ const App = () => {
         {isLogged ? (
           // 로그인 되었을때의 페이지
           <>
+            <Stack.Screen
+              name="MainScreen"
+              component={MainScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="MedicineDetail"
+              component={MedicineDetail}
+              options={{headerShown: false}}
+              
             //<Stack.Screen name="MainScreen" component={MainScreen} />
             <Stack.Screen name='Medimate' component={MainScreen} />
             <Stack.Screen name='MyInfo' component={MyInfo} />
@@ -162,6 +173,16 @@ const App = () => {
             <Stack.Screen
               name="StartPage"
               component={StartPage}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="MainScreen"
+              component={MainScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="MedicineDetail"
+              component={MedicineDetail}
               options={{headerShown: false}}
             />
           </>

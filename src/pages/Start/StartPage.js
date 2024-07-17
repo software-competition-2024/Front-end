@@ -6,7 +6,7 @@ const StartPage = () => {
   const navigation = useNavigation();
 
   const handleStart = () => {
-    navigation.replace('MainScreen');
+    navigation.navigate('MainScreen');
   };
 
   return (
