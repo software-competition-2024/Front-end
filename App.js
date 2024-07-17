@@ -12,6 +12,8 @@ import SignUpPage from './src/pages/SignUp/SignUpPage';
 import NextSignUpStep from './src/pages/SignUp/NextSignUpStep';
 import StartPage from './src/pages/Start/StartPage';
 import MedicineDetail from './src/pages/MedicineDetail';
+import MyInfo from './src/pages/MyInfo';
+import PrescriptionScan from './src/pages/PrescriptionScan';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -138,6 +140,16 @@ const App = () => {
               name="MedicineDetail"
               component={MedicineDetail}
               options={{headerShown: false}}
+              
+            //<Stack.Screen name="MainScreen" component={MainScreen} />
+            <Stack.Screen name='Medimate' component={MainScreen} />
+            <Stack.Screen name='MyInfo' component={MyInfo} />
+            <Stack.Screen
+              name='PrescriptionScan'
+              component={PrescriptionScan}
+              options={{
+                title: '처방전 스캔',
+              }}
             />
           </>
         ) : (
@@ -191,6 +203,7 @@ const styles = StyleSheet.create({
     height: 33,
     marginTop: 5,
   },
+
 });
 
 export default App;
