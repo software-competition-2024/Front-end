@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     flatListContainer: {
         flexGrow: 1,
         backgroundColor: 'white',
-        paddingBottom: 20,  // 스크롤 뷰의 하단에 여백 추가
+        paddingBottom: 20,  
     },
     headerContainer: {
         alignItems: 'center',

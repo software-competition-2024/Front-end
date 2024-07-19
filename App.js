@@ -10,6 +10,7 @@ import MyPage from './src/pages/MyPage';
 import LoginPage from './src/pages/Login/LoginPage';
 import MyInfo from './src/pages/MyInfo';
 import PrescriptionScan from './src/pages/PrescriptionScan';
+import MedicineScan from './src/pages/MedicineScan';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -136,6 +137,13 @@ const App = () => {
               component={PrescriptionScan}
               options={{
                 title: '처방전 스캔',
+              }}
+            />
+            <Stack.Screen
+              name='MedicineScan'
+              component={MedicineScan}
+              options={{
+                title: '상비약 스캔',
               }}
             />
           </>
