@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { format } from 'date-fns';
+import DatePicker from 'react-native-date-picker';
+import AlramSetting from '../component/Modal/AlramSetting';
 
 const PrescriptionScan = ({ route }) => {
     const { avatar } = route.params;
     const navigation = useNavigation();
+
+    const [date, setDate] = useState(new Date());
+    const [open, setOpen] = useState(false);
+
+    const formattedDate = format(date, 'yyyy.MM.dd');
+
+    const [alramvisible, setAlramVisible] = useState(false)
+
 
     const mockMedicine = [
         {
@@ -49,6 +60,21 @@ const PrescriptionScan = ({ route }) => {
 
     const ListHeaderComponent = () => (
         <View style={styles.headerContainer}>
+            <AlramSetting visible={alramvisible} onClose={() => setAlramVisible(false)} />
+            {open && (
+                <DatePicker
+                    modal
+                    open={open}
+                    date={date}
+                    onConfirm={(selectedDate) => {
+                        setOpen(false);
+                        setDate(selectedDate);
+                    }}
+                    onCancel={() => {
+                        setOpen(false);
+                    }}
+                />
+            )}
             <Text style={styles.scan_text}>스캔정보</Text>
             {avatar ? (
                 <Image style={styles.image} source={{ uri: avatar }} />
@@ -59,8 +85,10 @@ const PrescriptionScan = ({ route }) => {
                 <View style={styles.info_item1}>
                     <Text style={styles.date_text}>처방날짜</Text>
                     <View style={styles.date}>
-                        <Text style={styles.dateText}>2020.03.12</Text>
-                        <TouchableOpacity onPress={() => alert("날짜 변경")}>
+                        <Text style={styles.dateText}>
+                            {formattedDate}
+                        </Text>
+                        <TouchableOpacity onPress={() => setOpen(true)}>
                             <Image style={styles.editIcon} source={require('../../assets/icon/edit.png')} />
                         </TouchableOpacity>
                     </View>
@@ -92,8 +120,9 @@ const PrescriptionScan = ({ route }) => {
                         unFillColor="transparent"
                         iconStyle={{ borderColor: 'black', borderRadius: 0 }}
                         innerIconStyle={{ borderColor: 'black', borderRadius: 0 }}
+                        onPress={() => setAlramVisible(true)}
                     />
-                    <Text style={{marginLeft: 65}}>(선택) 복약 알림을 받으시겠습니까?</Text>
+                    <Text style={{ marginLeft: 65 }}>(선택) 복약 알림을 받으시겠습니까?</Text>
                     <Text onPress={() => navigation.navigate('Home')} style={styles.done_btn}>완료</Text>
                 </View>
             }
@@ -105,7 +134,7 @@ const styles = StyleSheet.create({
     flatListContainer: {
         flexGrow: 1,
         backgroundColor: 'white',
-        paddingBottom: 20,  // 스크롤 뷰의 하단에 여백 추가
+        paddingBottom: 20,
     },
     headerContainer: {
         alignItems: 'center',
