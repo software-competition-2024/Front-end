@@ -38,17 +38,6 @@ const SignUpPage = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/back_arrow.png')} // 백 버튼 이미지를 해당 경로에 맞게 수정하세요
-            style={styles.backButtonImage}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SIGN UP</Text>
-      </View>
       <Text style={styles.subHeader}>약관 동의 {'>'} 프로필 생성</Text>
       <ScrollView style={styles.scrollView}>
         <View style={styles.agreementContainer}>
@@ -150,26 +139,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 15,
-    left: 15,
-  },
-  backButtonImage: {
-    width: 32,
-    height: 32,
-    tintColor: '#FFFFFF',
-  },
-  header: {
-    backgroundColor: '#1F2178',
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   subHeader: {
     textAlign: 'center',

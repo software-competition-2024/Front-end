@@ -8,6 +8,8 @@ import {
   Image,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -15,16 +17,39 @@ const LoginPage = () => {
   const [autoLogin, setAutoLogin] = useState('');
   const navigation = useNavigation();
 
-  const handleLogin = () => {
-    //로그인 로직을 추가
-    // 서버에 요청을 보내서 로그인 정보를 확인하는 코드 작성
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post('http://10.0.2.2:8080/login', {
+        // 에뮬레이터에서는 10.0.2.2 사용
+        email,
+        password,
+      });
+      if (response.data.jwtToken) {
+        // JWT 토큰 저장
+        await AsyncStorage.setItem('jwtToken', response.data.jwtToken);
 
-    // 성공적으로 로그인하면 메인화면으로 이동
-    if (email === 'user' && password === 'pass') {
-      //임시 검증 로직
-      navigation.replace('MainScreen');
-    } else {
-      alert('Invalid username or password');
+        // 자동 로그인 설정 저장
+        await AsyncStorage.setItem('autoLogin', autoLogin.toString());
+
+        // 메인 화면으로 이동
+        navigation.replace('MainScreen');
+      } else {
+        alert('로그인에 실패했습니다.');
+        console.log('Response data:', response.data);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+
+      if (error.response) {
+        alert('로그인 중 오류가 발생했습니다.');
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request:', error.request);
+      } else {
+        console.error('Error Message:', error.message);
+      }
     }
   };
   const toggleAutoLogin = () => {

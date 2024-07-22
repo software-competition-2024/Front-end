@@ -75,9 +75,6 @@ const Home = () => {
   );
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>MediMate</Text>
-      </View>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -116,16 +113,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  header: {
-    backgroundColor: '#1F2178',
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   searchContainer: {
     flexDirection: 'row',

@@ -132,29 +132,29 @@ const App = () => {
         {isLogged ? (
           // 로그인 되었을때의 페이지
           <>
-            <Stack.Screen name='MediMate' component={MainScreen} />
-            <Stack.Screen name='MyInfo' component={MyInfo} />
+            <Stack.Screen name="MediMate" component={MainScreen} />
+            <Stack.Screen name="MyInfo" component={MyInfo} />
             <Stack.Screen
-              name='PrescriptionScan'
+              name="PrescriptionScan"
               component={PrescriptionScan}
               options={{
                 title: '처방전 스캔',
               }}
             />
             <Stack.Screen
-              name='MedicineScan'
+              name="MedicineScan"
               component={MedicineScan}
               options={{
                 title: '상비약 스캔',
               }}
             />
-             <Stack.Screen
+            <Stack.Screen
               name="MedicineDetail"
               component={MedicineDetail}
               options={{
                 title: '약품 조회',
               }}
-              />
+            />
           </>
         ) : (
           // 로그인 안되었을때의 페이지
@@ -167,12 +167,12 @@ const App = () => {
             <Stack.Screen
               name="SignUpPage"
               component={SignUpPage}
-              options={{headerShown: false}}
+              options={{title: 'SIGN UP'}}
             />
             <Stack.Screen
               name="NextSignUpStep"
               component={NextSignUpStep}
-              options={{headerShown: false}}
+              options={{title: 'SIGN UP'}}
             />
             <Stack.Screen
               name="StartPage"
@@ -182,12 +182,12 @@ const App = () => {
             <Stack.Screen
               name="MainScreen"
               component={MainScreen}
-              options={{headerShown: false}}
+              options={{title: 'MediMate'}}
             />
             <Stack.Screen
               name="MedicineDetail"
               component={MedicineDetail}
-              options={{headerShown: false}}
+              options={{title: '약품 조회'}}
             />
           </>
         )}
@@ -207,7 +207,6 @@ const styles = StyleSheet.create({
     height: 33,
     marginTop: 5,
   },
-
 });
 
 export default App;
