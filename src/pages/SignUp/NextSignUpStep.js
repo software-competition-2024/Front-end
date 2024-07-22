@@ -8,6 +8,8 @@ import {
   Image,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const NextSignUpStep = () => {
   const [email, setEmail] = useState('');
@@ -16,24 +18,41 @@ const NextSignUpStep = () => {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const navigation = useNavigation();
 
-  const handleSignUp = () => {
-    //회원가입 로직 추가
-    navigation.replace('StartPage');
+  const handleSignUp = async () => {
+    if (password !== passwordConfirm) {
+      alert('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
+    try {
+      await axios.post('http://10.0.2.2:8080/register', {
+        email,
+        nickname,
+        password,
+      });
+
+      alert('회원가입이 완료되었습니다. 로그인 화면으로 이동합니다.');
+      navigation.replace('LoginPage'); // 회원가입 후 로그인 화면으로 이동
+    } catch (error) {
+      if (error.response) {
+        if (error.response.status === 409) {
+          alert('이미 존재하는 이메일 주소입니다.');
+        } else {
+          alert('회원가입 중 오류가 발생했습니다.');
+        }
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        console.error('Response headers:', error.response.headers);
+      } else if (error.request) {
+        console.error('Request:', error.request);
+      } else {
+        console.error('Error Message:', error.message);
+      }
+    }
   };
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../../assets/icon/back_arrow.png')} // 백 버튼 이미지를 해당 경로에 맞게 수정하세요
-            style={styles.backButtonImage}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>SIGN UP</Text>
-      </View>
       <Text style={styles.subHeader}>약관 동의 {'>'} 프로필 생성</Text>
       <View style={styles.form}>
         <Text style={styles.label}>* 필수</Text>
@@ -85,26 +104,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  header: {
-    backgroundColor: '#1F2178',
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 15,
-    left: 15,
-  },
-  backButtonImage: {
-    width: 32,
-    height: 32,
-    tintColor: '#FFFFFF',
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   subHeader: {
     textAlign: 'center',

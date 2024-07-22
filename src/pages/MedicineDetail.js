@@ -15,17 +15,6 @@ const MedicineDetail = ({route}) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Image
-            source={require('../../assets/icon/back_arrow.png')} // 백 버튼 이미지를 해당 경로에 맞게 수정하세요
-            style={styles.backButtonImage}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>약품 조회</Text>
-      </View>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.medicineInfo}>
           <Text style={styles.medicineName}>{item.name}</Text>
@@ -69,28 +58,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
-  header: {
-    backgroundColor: '#1F2178',
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 15,
-    left: 15,
-  },
-  backButtonImage: {
-    width: 32,
-    height: 32,
-    tintColor: '#FFFFFF',
-  },
   scrollContainer: {
     padding: 20,
-  },
-  headerTitle: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: 'bold',
   },
   medicineInfo: {
     flex: 1,
