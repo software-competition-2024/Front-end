@@ -16,6 +16,18 @@ const MedicineScan = ({ route }) => {
     const [value, setValue] = useState(1);
     const [expiryDate, setExpiryDate] = useState(new Date());
 
+    //상비약 등록하기 위한 정보
+    const [request, setRequest] = useState({
+		productName: null,
+         expirationDate: new Date(),
+         openingDate: new Date(),
+         dosage: null,
+         ingredients: null,
+         classification: null,
+         userEmail: null,
+         pushNotificationSent: false
+    })
+
     const onChange = (value) => {
         setValue(value);
     };

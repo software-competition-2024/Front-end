@@ -17,6 +17,17 @@ const PrescriptionScan = ({ route }) => {
 
     const [alramvisible, setAlramVisible] = useState(false)
 
+    //처방약 등록하기 위한 정보
+    const [request, setRequest] = useState({
+        medicineName: null,
+        expirationDate: null,
+        prescriptionDate: null,
+        dosageInstruction: null,
+        precautions: null,
+        userEmail: null,
+        pushNotification: false,
+        dosageNotification: false
+    })
 
     const mockMedicine = [
         {

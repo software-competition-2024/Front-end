@@ -38,6 +38,8 @@ const Medicine = () => {
         );
     };
 
+    //ocr적용해서 이름 알아내고 알아낸 이름으로 상비약 db정보 조회하기(API연동부분)
+
     return (
         <View style={styles.container}>
             <View style={styles.upper_section}>
