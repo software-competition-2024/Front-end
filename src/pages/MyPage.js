@@ -1,16 +1,37 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { User } from '../API/User';
 
 const MyPage = () => {
     const navigation = useNavigation();
+    const [profile, setProfile] = useState({
+        email: null,
+        password: null,
+        nickname: null
+    });
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+          try {
+            const profileData = await User();
+            //한번더 확인
+            setProfile(profileData.data);
+          } catch (error) {
+            console.error('회원 정보 조회 에러:', error);
+            Alert.alert('회원 정보 조회 실패', '서버와 통신하는 중 오류가 발생했습니다.');
+          }
+        };
+    
+        fetchProfile();
+      }, []);
 
     return (
         <View style={styles.container}>
             <View style={styles.user_info}>
                 <Image style={styles.my_profile} source={require('../../assets/icon/profile.png')} />
-                <Text style={styles.Text}>User Name</Text>
-                <Text style={styles.Text}>sungshin@naver.com</Text>
+                <Text style={styles.Text}>{profile.nickname}</Text>
+                <Text style={styles.Text}>{profile.email}</Text>
             </View>
             <View style={styles.menu_section}>
                 <View style={styles.upper_section}>
@@ -74,7 +95,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        
+
     },
     section: {
         alignItems: 'center',
