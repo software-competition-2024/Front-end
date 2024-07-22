@@ -118,7 +118,7 @@ const MainScreen = () => {
 };
 
 const App = () => {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState(true);
 
   return (
     <NavigationContainer>
@@ -132,18 +132,7 @@ const App = () => {
         {isLogged ? (
           // 로그인 되었을때의 페이지
           <>
-            <Stack.Screen
-              name="MainScreen"
-              component={MainScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="MedicineDetail"
-              component={MedicineDetail}
-              options={{headerShown: false}}
-              
-            //<Stack.Screen name="MainScreen" component={MainScreen} />
-            <Stack.Screen name='Medimate' component={MainScreen} />
+            <Stack.Screen name='MediMate' component={MainScreen} />
             <Stack.Screen name='MyInfo' component={MyInfo} />
             <Stack.Screen
               name='PrescriptionScan'
@@ -159,6 +148,13 @@ const App = () => {
                 title: '상비약 스캔',
               }}
             />
+             <Stack.Screen
+              name="MedicineDetail"
+              component={MedicineDetail}
+              options={{
+                title: '약품 조회',
+              }}
+              />
           </>
         ) : (
           // 로그인 안되었을때의 페이지
