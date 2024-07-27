@@ -6,7 +6,7 @@ const StartPage = () => {
   const navigation = useNavigation();
 
   const handleStart = () => {
-    navigation.navigate('MainScreen');
+    navigation.navigate('MediMate');
   };
 
   return (
