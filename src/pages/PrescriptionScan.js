@@ -5,6 +5,7 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { format } from 'date-fns';
 import DatePicker from 'react-native-date-picker';
 import AlramSetting from '../component/Modal/AlramSetting';
+import { AddPrescription } from '../API/Medicine';
 
 const PrescriptionScan = ({ route }) => {
     const { avatar } = route.params;
@@ -17,6 +18,18 @@ const PrescriptionScan = ({ route }) => {
 
     const [alramvisible, setAlramVisible] = useState(false)
 
+    //처방약 등록하기 위한 정보
+    const [request, setRequest] = useState({
+
+        medicineName: "아모크라브3",
+        expirationDate: "2024-12-31",
+        prescriptionDate: "2024-07-13",
+        dosageInstruction: "하루에 2번",
+        precautions: "걍먹어",
+        userEmail: "user2@example.com",
+        pushNotification: false,
+        dosageNotification: false
+    })
 
     const mockMedicine = [
         {
@@ -44,6 +57,15 @@ const PrescriptionScan = ({ route }) => {
             alert: "공복에 복용하지 마세요"
         }
     ];
+
+    //처방약 등록하기
+    const handleSubmit = () => {
+        console.log("request", request)
+        AddPrescription(request);
+        navigation.navigate('Home')
+    }
+
+
 
     const renderItem = ({ item }) => (
         <View style={styles.medicineCard}>
@@ -123,7 +145,7 @@ const PrescriptionScan = ({ route }) => {
                         onPress={() => setAlramVisible(true)}
                     />
                     <Text style={{ marginLeft: 65 }}>(선택) 복약 알림을 받으시겠습니까?</Text>
-                    <Text onPress={() => navigation.navigate('Home')} style={styles.done_btn}>완료</Text>
+                    <Text onPress={handleSubmit} style={styles.done_btn}>완료</Text>
                 </View>
             }
         />

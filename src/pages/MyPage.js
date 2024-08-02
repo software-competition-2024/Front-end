@@ -1,30 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { User } from '../API/User';
 
 const MyPage = () => {
     const navigation = useNavigation();
     const [profile, setProfile] = useState({
-        email: null,
-        password: null,
-        nickname: null
+        email: '',
+        nickname: '',
+        password: '', // 비밀번호는 일반적으로 UI에서 보이지 않게 해야 함
     });
 
     useEffect(() => {
         const fetchProfile = async () => {
-          try {
-            const profileData = await User();
-            //한번더 확인
-            setProfile(profileData.data);
-          } catch (error) {
-            console.error('회원 정보 조회 에러:', error);
-            Alert.alert('회원 정보 조회 실패', '서버와 통신하는 중 오류가 발생했습니다.');
-          }
+            try {
+                const profileData = await User();
+                setProfile(profileData); // profileData가 { email, nickname, password } 형태인 경우
+            } catch (error) {
+                console.error('회원 정보 조회 에러:', error);
+                Alert.alert('회원 정보 조회 실패', '서버와 통신하는 중 오류가 발생했습니다.');
+            }
         };
-    
+
         fetchProfile();
-      }, []);
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -57,7 +56,7 @@ const MyPage = () => {
             </View>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -95,7 +94,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-
     },
     section: {
         alignItems: 'center',
@@ -105,13 +103,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderLeftWidth: 0.8,
-        paddingLeft: 15, // Adjusted padding to match section2
+        paddingLeft: 15,
     },
     section2: {
         alignItems: 'center',
         justifyContent: 'center',
         borderLeftWidth: 0.8,
-        paddingLeft: 40, // Adjusted padding to match section1
+        paddingLeft: 40,
     },
     text: {
         color: '#1F2178',
