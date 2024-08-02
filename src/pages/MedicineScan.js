@@ -4,29 +4,30 @@ import { useNavigation } from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import { format, add } from 'date-fns';
 import DropDownPicker from 'react-native-dropdown-picker';
+import { AddMedicine, GetMedicineDB } from '../API/Medicine';
 
 const MedicineScan = ({ route }) => {
-    const { avatar } = route.params;
+    const { avatar, productName } = route.params;
     const navigation = useNavigation();
 
     const [date, setDate] = useState(new Date());
     const [open, setOpen] = useState(false);
+    const [medicineDB, setMedicineDB] = useState({});
 
     const [dropdown, setDropdown] = useState(false);
     const [value, setValue] = useState(1);
     const [expiryDate, setExpiryDate] = useState(new Date());
 
-    //상비약 등록하기 위한 정보
     const [request, setRequest] = useState({
-		productName: null,
-         expirationDate: new Date(),
-         openingDate: new Date(),
-         dosage: null,
-         ingredients: null,
-         classification: null,
-         userEmail: null,
-         pushNotificationSent: false
-    })
+        productName: null,
+        expirationDate: format(new Date(), 'yyyy-MM-dd'), // Initial value formatted
+        openingDate: format(new Date(), 'yyyy-MM-dd'), // Initial value formatted
+        dosage: null,
+        ingredients: null,
+        classification: null,
+        userEmail: null,
+        pushNotificationSent: false
+    });
 
     const onChange = (value) => {
         setValue(value);
@@ -40,6 +41,23 @@ const MedicineScan = ({ route }) => {
 
     const formattedDate = format(date, 'yyyy.MM.dd');
     const formattedExpiryDate = format(expiryDate, 'yyyy.MM.dd');
+
+    //상비약 정보 조회
+    useEffect(() => {
+        const fetchMedicineData = async () => {
+            try {
+                const data = await GetMedicineDB(productName);
+                console.log("응답받은 상비약 정보 확인1", data);
+                setMedicineDB(data[0]); 
+            } catch (error) {
+                console.error('상비약 정보 조회 에러:', error);
+            }
+        };
+
+        if (productName) {
+            fetchMedicineData();
+        }
+    }, [productName]);
 
     useEffect(() => {
         let newExpiryDate;
@@ -59,6 +77,23 @@ const MedicineScan = ({ route }) => {
         }
         setExpiryDate(newExpiryDate);
     }, [value]);
+
+    const handleSubmit = () => {
+        console.log("medicineDB", medicineDB);
+        setRequest({
+            productName: medicineDB.productName,
+            expirationDate: format(expiryDate, 'yyyy-MM-dd').toString(), // Format the expiry date
+            openingDate: format(date, 'yyyy-MM-dd').toString(), // Format the opening date
+            dosage: medicineDB.dosage,
+            ingredients: medicineDB.ingredients,
+            classification: medicineDB.classification,
+            userEmail: "", // 사용자 이메일을 어떻게 처리할지에 따라 설정
+            pushNotificationSent: false
+        });
+
+        AddMedicine(request);
+        navigation.navigate('Home');
+    };
 
     return (
         <ScrollView contentContainerStyle={styles.headerContainer}>
@@ -116,27 +151,26 @@ const MedicineScan = ({ route }) => {
                 <View style={styles.medicine_section}>
                     <View style={styles.section1}>
                         <Text style={styles.medicine_key}>제품명</Text>
-                        <Text style={{ marginTop: 10 }}>타이레놀정 500mg</Text>
+                        <Text style={{ marginTop: 10 }}>{medicineDB.productName || '정보 없음'}</Text>
                     </View>
                     <View style={styles.section1}>
                         <Text style={styles.medicine_key}>성분</Text>
-                        <Text style={{ marginTop: 10 }}>아세트아미노펜 500mg</Text>
+                        <Text style={{ marginTop: 10 }}>{medicineDB.ingredients || '정보 없음'}</Text>
                     </View>
                     <View style={styles.section1}>
                         <Text style={styles.medicine_key}>분류</Text>
-                        <Text style={{ marginTop: 10 }}>해열, 진통, 소염제</Text>
+                        <Text style={{ marginTop: 10 }}>{medicineDB.classification || '정보 없음'}</Text>
                     </View>
                     <View style={styles.section1}>
                         <Text style={styles.medicine_key}>용법 용량</Text>
                         <Text style={styles.dosageText}>
-                            만 12세 이상 소아 및 성인: 1회 1~2정씩 1일 3-4회 (4-6시간 마다) 필요시 복용한다.
-                            1일 최대 4그램 (8정)을 초과하여 복용하지 않는다.
+                            {medicineDB.dosage || '정보 없음'}
                         </Text>
                     </View>
                 </View>
             </View>
             <View style={styles.done_btn_container}>
-                <TouchableOpacity style={styles.done_btn} onPress={() => navigation.navigate('Home')}>
+                <TouchableOpacity style={styles.done_btn} onPress={handleSubmit}>
                     <Text style={styles.done_btn_text}>완료</Text>
                 </TouchableOpacity>
             </View>
@@ -222,16 +256,27 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 10,
-        width: 350,
-        alignSelf: 'center',
-        backgroundColor: 'white',
+        width: '100%',
+    },
+    medicine_section: {
+        marginTop: 10,
+    },
+    section1: {
+        paddingBottom: 15,
+    },
+    medicine_key: {
+        fontWeight: 'bold',
+        color: 'black',
+        fontSize: 15,
+    },
+    dosageText: {
+        marginTop: 10,
     },
     done_btn_container: {
         width: '100%',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        paddingHorizontal: 20,
-        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 20,
     },
     done_btn: {
         fontSize: 15,
@@ -240,44 +285,20 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         color: 'white',
         borderRadius: 10,
+        marginTop: 30,
+        alignItems: 'flex-end',
+        marginLeft: 310,
+        width: '17%'
     },
     done_btn_text: {
         color: 'white',
+        fontSize: 15,
         fontWeight: 'bold',
-    },
-    medicine_section: {
-        width: '100%',
-    },
-    section1: {
-        flexDirection: 'row',
-        marginBottom: 10,
-    },
-    medicine_key: {
-        fontWeight: 'bold',
-        color: 'black',
-        marginRight: 5,
-        marginTop: 10
-    },
-    dosageText: {
-        flex: 1,
-        flexWrap: 'wrap',
-        marginTop: 10,
-    },
-    dropdownpicker: {
-        borderRadius: 20,
-        maxHeight: 25,
-        minHeight: 27,
-        backgroundColor: 'transparent',
-        marginLeft: 10,
-        marginTop: 3
     },
     dropdownContainer: {
-        width: 80,
-        maxHeight: 30,
+        width: '50%',
+        marginTop: 10,
     },
-    dropdown_section: {
-        flexDirection: 'row'
-    }
 });
 
 export default MedicineScan;

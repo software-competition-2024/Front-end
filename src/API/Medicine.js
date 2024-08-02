@@ -3,14 +3,16 @@ import instance from './Axios';
 
 //상비약 등록
 export const AddMedicine = async (request) => {
+    console.log("요청에 이용되는 request", request);
     try {
-        const accessToken = await AsyncStorage.getItem('accessToken');
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
+    
         const response = await instance.post(
             '/api/otc-medicines', 
             request, //객체 형태의 request전달하기
             {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${jwtToken}`,
                 }
             }
         );
@@ -25,12 +27,12 @@ export const AddMedicine = async (request) => {
 //상비약 db정보 불러오기
 export const GetMedicineDB = async (productName) => {
     try {
-        const accessToken = await AsyncStorage.getItem('accessToken');
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
         const response = await instance.get(
             `/api/medicine-info/${productName}`, 
             {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${jwtToken}`,
                 }
             }
         );
@@ -45,13 +47,13 @@ export const GetMedicineDB = async (productName) => {
 //처방약 등록
 export const AddPrescription = async (request) => {
     try {
-        const accessToken = await AsyncStorage.getItem('accessToken');
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
         const response = await instance.get(
             '/api/pst-medicines', 
             request, //객체 형태의 request전달하기
             {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${jwtToken}`,
                 }
             }
         );

@@ -19,7 +19,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://10.0.2.2:8080/login', {
+      const response = await axios.post('http://192.168.45.34:8080/login', {
         // 에뮬레이터에서는 10.0.2.2 사용
         email,
         password,

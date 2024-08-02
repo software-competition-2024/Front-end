@@ -5,6 +5,7 @@ import BouncyCheckbox from "react-native-bouncy-checkbox";
 import { format } from 'date-fns';
 import DatePicker from 'react-native-date-picker';
 import AlramSetting from '../component/Modal/AlramSetting';
+import { AddPrescription } from '../API/Medicine';
 
 const PrescriptionScan = ({ route }) => {
     const { avatar } = route.params;
@@ -55,6 +56,16 @@ const PrescriptionScan = ({ route }) => {
             alert: "공복에 복용하지 마세요"
         }
     ];
+
+    //처방약 등록하기
+    const handleSubmit = () => {
+        //그전에 입력한 정보 request에 저장하기
+
+        AddMedicine(request);
+        // navigation.navigate('Home')
+    }
+
+
 
     const renderItem = ({ item }) => (
         <View style={styles.medicineCard}>
@@ -134,7 +145,7 @@ const PrescriptionScan = ({ route }) => {
                         onPress={() => setAlramVisible(true)}
                     />
                     <Text style={{ marginLeft: 65 }}>(선택) 복약 알림을 받으시겠습니까?</Text>
-                    <Text onPress={() => navigation.navigate('Home')} style={styles.done_btn}>완료</Text>
+                    <Text onPress={handleSubmit} style={styles.done_btn}>완료</Text>
                 </View>
             }
         />

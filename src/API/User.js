@@ -1,14 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import instance from './Axios';
+import instance from "./Axios";
 
 export const User = async () => {
     try {
-        const accessToken = await AsyncStorage.getItem('accessToken');
+        const jwtToken = await AsyncStorage.getItem('jwtToken');
+        console.log(jwtToken);
         const response = await instance.get(
             '/user', 
             {
                 headers: {
-                    Authorization: `Bearer ${accessToken}`,
+                    Authorization: `Bearer ${jwtToken}`,
                 }
             }
         );
