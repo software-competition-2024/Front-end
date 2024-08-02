@@ -29,6 +29,27 @@ const MedicineScan = ({ route }) => {
         pushNotificationSent: false
     });
 
+    const [medicineImg, setMedicineImg] = useState('');
+
+    // 이미지 선택 함수
+    const selectMedicineImg = (productName) => {
+        let src;
+        if (productName.includes("타이")) {
+            src = require('../../assets/image/tylenol.png');
+        } else if (productName.includes("후시")) {
+            src = require('../../assets/image/fushidin.png');
+        } else if (productName.includes("시크릿")) {
+            src = require('../../assets/image/secretone.png');
+        } else if (productName.includes("마데")) {
+            src = require('../../assets/image/madecasol.png');
+        } else if (productName.includes("파모티딘")) {
+            src = require('../../assets/image/famotidine.png');
+        } else {
+            src = null; 
+        }
+        setMedicineImg(src);
+    };
+
     const onChange = (value) => {
         setValue(value);
     };
@@ -49,6 +70,7 @@ const MedicineScan = ({ route }) => {
                 const data = await GetMedicineDB(productName);
                 console.log("응답받은 상비약 정보 확인1", data);
                 setMedicineDB(data[0]); 
+                selectMedicineImg(productName);
             } catch (error) {
                 console.error('상비약 정보 조회 에러:', error);
             }
@@ -79,7 +101,6 @@ const MedicineScan = ({ route }) => {
     }, [value]);
 
     const handleSubmit = () => {
-        console.log("medicineDB", medicineDB);
         setRequest({
             productName: medicineDB.productName,
             expirationDate: format(expiryDate, 'yyyy-MM-dd').toString(), // Format the expiry date
@@ -112,8 +133,8 @@ const MedicineScan = ({ route }) => {
                 />
             )}
             <Text style={styles.scan_text}>스캔정보</Text>
-            {avatar ? (
-                <Image style={styles.image} source={{ uri: avatar }} />
+            {medicineImg ? (
+                <Image style={styles.image} source={medicineImg} />
             ) : (
                 <Text>No image selected</Text>
             )}
@@ -187,14 +208,14 @@ const styles = StyleSheet.create({
     scan_text: {
         fontSize: 18,
         color: 'black',
-        marginVertical: 20,
+        marginTop: 20,
         fontWeight: 'bold',
         textAlign: 'left',
         width: '100%',
         marginLeft: 25,
     },
     image: {
-        width: '100%',
+        width: '90%',
         height: 300,
         resizeMode: 'contain',
         marginVertical: 10,
@@ -285,7 +306,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         color: 'white',
         borderRadius: 10,
-        marginTop: 30,
+        marginTop: 20,
         alignItems: 'flex-end',
         marginLeft: 310,
         width: '17%'

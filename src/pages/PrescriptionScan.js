@@ -20,12 +20,13 @@ const PrescriptionScan = ({ route }) => {
 
     //처방약 등록하기 위한 정보
     const [request, setRequest] = useState({
-        medicineName: null,
-        expirationDate: null,
-        prescriptionDate: null,
-        dosageInstruction: null,
-        precautions: null,
-        userEmail: null,
+
+        medicineName: "아모크라브3",
+        expirationDate: "2024-12-31",
+        prescriptionDate: "2024-07-13",
+        dosageInstruction: "하루에 2번",
+        precautions: "걍먹어",
+        userEmail: "user2@example.com",
         pushNotification: false,
         dosageNotification: false
     })
@@ -59,10 +60,9 @@ const PrescriptionScan = ({ route }) => {
 
     //처방약 등록하기
     const handleSubmit = () => {
-        //그전에 입력한 정보 request에 저장하기
-
-        AddMedicine(request);
-        // navigation.navigate('Home')
+        console.log("request", request)
+        AddPrescription(request);
+        navigation.navigate('Home')
     }
 
 
