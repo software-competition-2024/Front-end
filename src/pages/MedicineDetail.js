@@ -7,17 +7,98 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const MedicineDetail = ({route}) => {
-  const {item} = route.params;
+const MedicineDetail = ({}) => {
+  const route = useRoute();
   const navigation = useNavigation();
+  const {item} = route.params;
+  const [medicineDetail, setMedicineDetail] = useState(null);
+
+  // 약품 상세 정보를 가져오는 함수
+  const fetchMedicineDetail = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('No JWT token found, redirecting to login.');
+        navigation.replace('LoginPage');
+        return;
+      }
+
+      const endpoint =
+        item.type === 'prescription'
+          ? `/home/${item.id}/prescription`
+          : `/home/${item.id}/over_the_counter`;
+
+      const response = await fetch(`http://10.0.2.2:8080${endpoint}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 200) {
+        const result = await response.json();
+        setMedicineDetail(result);
+      } else {
+        console.error('Failed to fetch medicine details:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching medicine details:', error);
+    }
+  };
+  const deleteMedicine = async () => {
+    try {
+      const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('No JWT token found, redirecting to login.');
+        navigation.replace('LoginPage');
+        return;
+      }
+      const endpoint =
+        item.type === 'prescription'
+          ? `/home/${item.id}/prescription`
+          : `/home/${item.id}/over_the_counter`;
+
+      const response = await fetch(`http://10.0.2.2:8080${endpoint}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response.status === 200) {
+        const result = await response.text();
+        console.log('Delete result:', result);
+        alert('약품이 성공적으로 삭제되었습니다.');
+        navigation.goBack(); // 삭제 후 이전 화면으로 이동
+      } else {
+        console.error('Failed to delete medicine:', response.status);
+        alert('약품 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error deleting medicine:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchMedicineDetail();
+  }, []);
+
+  if (!medicineDetail) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <View style={styles.medicineInfo}>
-          <Text style={styles.medicineName}>{item.name}</Text>
+          <Text style={styles.medicineName}>
+            {medicineDetail.medicineName || medicineDetail.productName}
+          </Text>
           <View style={styles.imageContainer}>
             <Image
               source={require('../../assets/icon/placeholder.png')}
@@ -25,28 +106,38 @@ const MedicineDetail = ({route}) => {
             />
           </View>
           <Text style={styles.sectionTitle}>남은 사용기한</Text>
-          <Text style={styles.dDay}>{item.dDay}</Text>
+          <Text style={styles.dDay}>{medicineDetail.expirationDays}</Text>
           <View style={styles.dateContainer}>
             <View style={styles.dateSection}>
               <Text style={styles.dateLabel}>사용기한</Text>
-              <Text style={styles.dateValue}>2029.03.07</Text>
+              <Text style={styles.dateValue}>
+                {medicineDetail.expirationDays}
+              </Text>
             </View>
             <View style={styles.dateSection}>
               <Text style={styles.dateLabel}>
                 {item.type === '상비약' ? '구입날짜' : '처방날짜'}
               </Text>
-              <Text style={styles.dateValue}>2024.05.01</Text>
+              <Text style={styles.dateValue}>
+                {medicineDetail.openingDate || medicineDetail.prescriptionDate}
+              </Text>
             </View>
           </View>
           <View style={styles.notesContainer}>
-            <Text style={styles.notesLabel}>복약안내</Text>
+            <Text style={styles.notesLabel}>
+              {item.type === '상비약' ? '성분' : '복약안내'}
+            </Text>
             <View style={styles.notesBox} />
-            <Text style={styles.notesLabel}>주의사항</Text>
-            <View style={styles.notesBox} />
+            <Text style={styles.notesLabel}>
+              {item.type === '상비약' ? '복약안내' : '주의사항'}
+            </Text>
+            <View style={styles.notesBox}>
+              {medicineDetail.dosage || medicineDetail.precautions}
+            </View>
           </View>
         </View>
       </ScrollView>
-      <TouchableOpacity style={styles.deleteButton}>
+      <TouchableOpacity style={styles.deleteButton} onPress={deleteMedicine}>
         <Text style={styles.deleteButtonText}>삭제</Text>
       </TouchableOpacity>
     </View>

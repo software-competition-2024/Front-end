@@ -10,53 +10,92 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
-  //API 연동 시 코드
-  /*
   const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-  const fetchData = async () => {
-    try {
-      const response = await fetch(''); //API URL 입력하기
-      const result = await response.json();
-      setData(result);
-      setIsLoading(false);
-    } catch (error) {
-      console.error(error);
-      setIsLoading(false);
-    }
-  };*/
-  const initialData = [
-    {id: '1', name: '약품명1', type: '처방약', dDay: 'D-00'},
-    {id: '2', name: '약품명2', type: '상비약', dDay: 'D-00'},
-    {id: '3', name: '약품명3', type: '처방약', dDay: 'D-00'},
-    {id: '4', name: '약품명4', type: '상비약', dDay: 'D-00'},
-  ];
-  const [data, setData] = useState(initialData);
+  const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [filteredData, setFilteredData] = useState(initialData);
-  const [isSorted, setIsSorted] = useState(false);
+  const [typeFilter, setTypeFilter] = useState('전체');
+  const [sortOption, setSortOption] = useState('등록순');
   const navigation = useNavigation();
 
+  // API 데이터 가져오기
+  const fetchData = async () => {
+    try {
+      /// AsyncStorage에서 토큰 가져오기
+      const token = await AsyncStorage.getItem('jwtToken');
+      if (!token) {
+        console.error('No JWT token found, redirecting to login.');
+        navigation.replace('LoginPage');
+        return;
+      }
+
+      // API request with authentication
+      const response = await fetch(
+        `http://10.0.2.2:8080/home?type=${typeFilter}&sort=${sortOption}&search=${searchText}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      // 응답 상태 확인
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      const responseBody = await response.text(); // 원시 응답 보기
+      if (response.status === 200) {
+        try {
+          const result = JSON.parse(responseBody); // JSON 파싱
+          console.log('Received data:', result); // 응답 데이터 로그
+
+          setData(result);
+          setFilteredData(result);
+        } catch (jsonError) {
+          console.error('JSON 파싱 에러:', jsonError);
+        }
+      } else {
+        console.error('Unexpected response status:', response.status);
+      }
+    } catch (error) {
+      console.error('API 요청 에러:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(); // 컴포넌트가 마운트될 때 데이터 가져오기
+  }, [typeFilter, sortOption, searchText]); // 필터와 검색 조건이 변경될 때마다 데이터 다시 가져오기
+
+  // 검색 버튼 클릭 시 동작
   const handleSearch = () => {
-    const filtered = data.filter(item => item.name.includes(searchText));
+    console.log('검색 실행:', searchText);
+    const filtered = data.filter(item =>
+      item.medicineName.includes(searchText),
+    );
+    console.log('Filtered data:', filtered);
     setFilteredData(filtered);
   };
 
   const handleShowAll = () => {
+    console.log('전체 보기');
     setFilteredData(data);
     setSearchText('');
   };
 
+  // 정렬 버튼 클릭 시 동작
   const handleSort = () => {
-    const sortedData = [...filteredData].sort((a, b) => a.id - b.id);
+    console.log('정렬 실행:', sortOption);
+    const sortedData = [...filteredData].sort((a, b) => {
+      if (sortOption === '등록순') {
+        return a.medicineName.localeCompare(b.medicineName);
+      } else {
+        return a.expirationDaysInNumber - b.expirationDaysInNumber;
+      }
+    });
+    console.log('Sorted data:', sortedData);
     setFilteredData(sortedData);
-    setIsSorted(true);
   };
 
   const renderItem = ({item}) => (
@@ -65,11 +104,11 @@ const Home = () => {
       onPress={() => navigation.navigate('MedicineDetail', {item})}>
       <View style={styles.imagePlaceholder} />
       <View style={styles.textContainer}>
-        <Text style={styles.medicineName}>{item.name}</Text>
+        <Text style={styles.medicineName}>{item.medicineName}</Text>
         <View style={styles.typeBadge(item.type)}>
-          <Text style={styles.typeText}>{item.type}</Text>
+          <Text style={styles.typeText}>{item.medicineType}</Text>
         </View>
-        <Text style={styles.dDay}>{item.dDay}</Text>
+        <Text style={styles.dDay}>{item.expirationDays}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -96,12 +135,17 @@ const Home = () => {
           <TouchableOpacity style={styles.sortButton} onPress={handleSort}>
             <Text>등록순</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.sortButton}
+            onPress={() => setSortOption('유통기한 임박순')}>
+            <Text>유통기한 임박순</Text>
+          </TouchableOpacity>
         </View>
       </View>
       <FlatList
-        data={data}
+        data={filteredData}
         renderItem={renderItem}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.listContainer}
         style={styles.flatList}
       />
@@ -153,7 +197,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterButton: {
-    marginRight: 10,
+    marginRight: 5,
     borderColor: '#1F2178',
     borderWidth: 1.5,
     borderRadius: 20,
@@ -168,6 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     paddingHorizontal: 10,
     paddingVertical: 5,
+    marginHorizontal: 3,
   },
   listContainer: {
     paddingTop: 10,
