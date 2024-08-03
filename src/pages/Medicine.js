@@ -33,10 +33,10 @@ const Medicine = () => {
                 } else {
                     const asset = res.assets[0]; // 선택한 첫 번째 이미지
                     setAvatar(asset.uri);
+                    setProductName("타이레놀");
                     console.log('Selected image URI:', asset.uri);
 
                     // 임시로 productName을 설정
-                    setProductName("타이레놀");
                     navigateToNext(productName);
                 }
             }
