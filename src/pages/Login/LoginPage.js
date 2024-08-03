@@ -19,7 +19,7 @@ const LoginPage = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post('http://192.168.45.34:8080/login', {
+      const response = await axios.post('http://192.168.45.246:8080/login', {
         // 에뮬레이터에서는 10.0.2.2 사용
         email,
         password,
@@ -33,6 +33,7 @@ const LoginPage = () => {
 
         // 메인 화면으로 이동
         navigation.replace('MainScreen');
+        console.log("로그인 성공",response.data);
       } else {
         alert('로그인에 실패했습니다.');
         console.log('Response data:', response.data);

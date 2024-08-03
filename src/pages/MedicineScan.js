@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import DatePicker from 'react-native-date-picker';
 import { format, add } from 'date-fns';
@@ -20,8 +20,8 @@ const MedicineScan = ({ route }) => {
 
     const [request, setRequest] = useState({
         productName: null,
-        expirationDate: format(new Date(), 'yyyy-MM-dd'), // Initial value formatted
-        openingDate: format(new Date(), 'yyyy-MM-dd'), // Initial value formatted
+        expirationDate: format(new Date(), 'yyyy-MM-dd'),
+        openingDate: format(new Date(), 'yyyy-MM-dd'),
         dosage: null,
         ingredients: null,
         classification: null,
@@ -31,7 +31,6 @@ const MedicineScan = ({ route }) => {
 
     const [medicineImg, setMedicineImg] = useState('');
 
-    // 이미지 선택 함수
     const selectMedicineImg = (productName) => {
         let src;
         if (productName.includes("타이")) {
@@ -63,7 +62,6 @@ const MedicineScan = ({ route }) => {
     const formattedDate = format(date, 'yyyy.MM.dd');
     const formattedExpiryDate = format(expiryDate, 'yyyy.MM.dd');
 
-    //상비약 정보 조회
     useEffect(() => {
         const fetchMedicineData = async () => {
             try {
@@ -71,6 +69,16 @@ const MedicineScan = ({ route }) => {
                 console.log("응답받은 상비약 정보 확인1", data);
                 setMedicineDB(data[0]); 
                 selectMedicineImg(productName);
+                setRequest({
+                    productName: data[0].productName,
+                    expirationDate: format(expiryDate, 'yyyy-MM-dd').toString(),
+                    openingDate: format(date, 'yyyy-MM-dd').toString(),
+                    dosage: data[0].dosage,
+                    ingredients: data[0].ingredients,
+                    classification: data[0].classification,
+                    userEmail: "user@example.com",
+                    pushNotificationSent: false
+                });
             } catch (error) {
                 console.error('상비약 정보 조회 에러:', error);
             }
@@ -79,6 +87,7 @@ const MedicineScan = ({ route }) => {
         if (productName) {
             fetchMedicineData();
         }
+
     }, [productName]);
 
     useEffect(() => {
@@ -101,101 +110,98 @@ const MedicineScan = ({ route }) => {
     }, [value]);
 
     const handleSubmit = () => {
-        setRequest({
-            productName: medicineDB.productName,
-            expirationDate: format(expiryDate, 'yyyy-MM-dd').toString(), // Format the expiry date
-            openingDate: format(date, 'yyyy-MM-dd').toString(), // Format the opening date
-            dosage: medicineDB.dosage,
-            ingredients: medicineDB.ingredients,
-            classification: medicineDB.classification,
-            userEmail: "", // 사용자 이메일을 어떻게 처리할지에 따라 설정
-            pushNotificationSent: false
-        });
 
+        console.log("request",request);
         AddMedicine(request);
         navigation.navigate('Home');
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.headerContainer}>
-            {open && (
-                <DatePicker
-                    modal
-                    open={open}
-                    date={date}
-                    onConfirm={(selectedDate) => {
-                        setOpen(false);
-                        setDate(selectedDate);
-                    }}
-                    onCancel={() => {
-                        setOpen(false);
-                    }}
-                />
-            )}
-            <Text style={styles.scan_text}>스캔정보</Text>
-            {medicineImg ? (
-                <Image style={styles.image} source={medicineImg} />
-            ) : (
-                <Text>No image selected</Text>
-            )}
-            <View style={styles.info_container}>
-                <View style={styles.info_item1}>
-                    <Text style={styles.date_text}>개봉날짜</Text>
-                    <View style={styles.date}>
-                        <Text style={styles.dateText1}>{formattedDate}</Text>
-                        <TouchableOpacity onPress={() => setOpen(true)}>
-                            <Image style={styles.editIcon} source={require('../../assets/icon/edit.png')} />
+        <FlatList
+            data={[]}
+            ListHeaderComponent={
+                <View style={styles.headerContainer}>
+                    {open && (
+                        <DatePicker
+                            modal
+                            open={open}
+                            date={date}
+                            onConfirm={(selectedDate) => {
+                                setOpen(false);
+                                setDate(selectedDate);
+                            }}
+                            onCancel={() => {
+                                setOpen(false);
+                            }}
+                        />
+                    )}
+                    <Text style={styles.scan_text}>스캔정보</Text>
+                    {medicineImg ? (
+                        <Image style={styles.image} source={medicineImg} />
+                    ) : (
+                        <Text>No image selected</Text>
+                    )}
+                    <View style={styles.info_container}>
+                        <View style={styles.info_item1}>
+                            <Text style={styles.date_text}>개봉날짜</Text>
+                            <View style={styles.date}>
+                                <Text style={styles.dateText1}>{formattedDate}</Text>
+                                <TouchableOpacity onPress={() => setOpen(true)}>
+                                    <Image style={styles.editIcon} source={require('../../assets/icon/edit.png')} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.info_item2}>
+                            <Text style={styles.date_text}>사용기한</Text>
+                            <View style={styles.dropdown_section}>
+                                <Text style={styles.dateText2}>{formattedExpiryDate}</Text>
+                                <DropDownPicker
+                                    style={styles.dropdownpicker}
+                                    containerStyle={styles.dropdownContainer}
+                                    open={dropdown}
+                                    value={value}
+                                    items={items}
+                                    placeholder="전체"
+                                    setOpen={setDropdown}
+                                    setValue={setValue}
+                                    setItems={setItems}
+                                    onChangeValue={onChange}
+                                />
+                            </View>
+                        </View>
+                    </View>
+                    <Text style={styles.medicine_text}>약정보</Text>
+                    <View style={styles.about_medicine}>
+                        <View style={styles.medicine_section}>
+                            <View style={styles.section1}>
+                                <Text style={styles.medicine_key}>제품명</Text>
+                                <Text style={{ marginTop: 10 }}>{medicineDB.productName || '정보 없음'}</Text>
+                            </View>
+                            <View style={styles.section1}>
+                                <Text style={styles.medicine_key}>성분</Text>
+                                <Text style={{ marginTop: 10 }}>{medicineDB.ingredients || '정보 없음'}</Text>
+                            </View>
+                            <View style={styles.section1}>
+                                <Text style={styles.medicine_key}>분류</Text>
+                                <Text style={{ marginTop: 10 }}>{medicineDB.classification || '정보 없음'}</Text>
+                            </View>
+                            <View style={styles.section1}>
+                                <Text style={styles.medicine_key}>용법 용량</Text>
+                                <Text style={styles.dosageText}>
+                                    {medicineDB.dosage || '정보 없음'}
+                                </Text>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={styles.done_btn_container}>
+                        <TouchableOpacity style={styles.done_btn} onPress={handleSubmit}>
+                            <Text style={styles.done_btn_text}>완료</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
-                <View style={styles.info_item2}>
-                    <Text style={styles.date_text}>사용기한</Text>
-                    <View style={styles.dropdown_section}>
-                        <Text style={styles.dateText2}>{formattedExpiryDate}</Text>
-                        <DropDownPicker
-                            style={styles.dropdownpicker}
-                            containerStyle={styles.dropdownContainer}
-                            open={dropdown}
-                            value={value}
-                            items={items}
-                            placeholder="전체"
-                            setOpen={setDropdown}
-                            setValue={setValue}
-                            setItems={setItems}
-                            onChangeValue={onChange}
-                        />
-                    </View>
-                </View>
-            </View>
-            <Text style={styles.medicine_text}>약정보</Text>
-            <View style={styles.about_medicine}>
-                <View style={styles.medicine_section}>
-                    <View style={styles.section1}>
-                        <Text style={styles.medicine_key}>제품명</Text>
-                        <Text style={{ marginTop: 10 }}>{medicineDB.productName || '정보 없음'}</Text>
-                    </View>
-                    <View style={styles.section1}>
-                        <Text style={styles.medicine_key}>성분</Text>
-                        <Text style={{ marginTop: 10 }}>{medicineDB.ingredients || '정보 없음'}</Text>
-                    </View>
-                    <View style={styles.section1}>
-                        <Text style={styles.medicine_key}>분류</Text>
-                        <Text style={{ marginTop: 10 }}>{medicineDB.classification || '정보 없음'}</Text>
-                    </View>
-                    <View style={styles.section1}>
-                        <Text style={styles.medicine_key}>용법 용량</Text>
-                        <Text style={styles.dosageText}>
-                            {medicineDB.dosage || '정보 없음'}
-                        </Text>
-                    </View>
-                </View>
-            </View>
-            <View style={styles.done_btn_container}>
-                <TouchableOpacity style={styles.done_btn} onPress={handleSubmit}>
-                    <Text style={styles.done_btn_text}>완료</Text>
-                </TouchableOpacity>
-            </View>
-        </ScrollView>
+            }
+            keyExtractor={(item, index) => index.toString()}
+        />
     );
 }
 
@@ -248,10 +254,15 @@ const styles = StyleSheet.create({
     },
     dateText2: {
         marginTop: 5,
+        marginRight: 10, // 오른쪽에 약간의 여백 추가
     },
     editIcon: {
         marginLeft: 5,
         marginTop: 8,
+    },
+    dropdown_section: {
+        flexDirection: 'row', // 가로로 정렬
+        alignItems: 'center', // 세로 중앙 정렬
     },
     about_medicine: {
         alignItems: 'flex-start',
@@ -316,8 +327,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: 'bold',
     },
+    dropdownpicker: {
+        minHeight: 22,
+        maxHeight: 29,
+    },
     dropdownContainer: {
-        width: '50%',
+        width: '40%',
         marginTop: 10,
     },
 });
