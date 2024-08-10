@@ -9,7 +9,7 @@ import {
   Image,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Home = () => {
@@ -23,7 +23,6 @@ const Home = () => {
   // API 데이터 가져오기
   const fetchData = async () => {
     try {
-      /// AsyncStorage에서 토큰 가져오기
       const token = await AsyncStorage.getItem('jwtToken');
       if (!token) {
         console.error('No JWT token found, redirecting to login.');
@@ -31,69 +30,84 @@ const Home = () => {
         return;
       }
 
-      // API request with authentication
       const response = await fetch(
         `http://10.0.2.2:8080/home?type=${typeFilter}&sort=${sortOption}&search=${searchText}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: {Authorization: `Bearer ${token}`},
         },
       );
 
-      // 응답 상태 확인
-      console.log('Response status:', response.status);
-      console.log('Response headers:', response.headers);
-
-      const responseBody = await response.text(); // 원시 응답 보기
       if (response.status === 200) {
-        try {
-          const result = JSON.parse(responseBody); // JSON 파싱
-          console.log('Received data:', result); // 응답 데이터 로그
-
-          setData(result);
-          setFilteredData(result);
-        } catch (jsonError) {
-          console.error('JSON 파싱 에러:', jsonError);
-        }
+        const result = await response.json();
+        console.log('Received data:', result);
+        return result;
       } else {
         console.error('Unexpected response status:', response.status);
+        return [];
       }
     } catch (error) {
       console.error('API 요청 에러:', error);
+      return [];
     }
   };
+  // 데이터를 최신 상태로 유지하기 위해 화면에 다시 포커스될 때마다 데이터를 새로 가져옵니다.
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [typeFilter, sortOption]),
+  );
 
-  useEffect(() => {
-    fetchData(); // 컴포넌트가 마운트될 때 데이터 가져오기
-  }, [typeFilter, sortOption, searchText]); // 필터와 검색 조건이 변경될 때마다 데이터 다시 가져오기
+  const filterData = (data, query) => {
+    const searchQuery = query.trim().toLowerCase();
+    return data.filter(
+      item =>
+        (item.medicineName &&
+          item.medicineName.toLowerCase().includes(searchQuery)) ||
+        (item.productName &&
+          item.productName.toLowerCase().includes(searchQuery)),
+    );
+  };
 
-  // 검색 버튼 클릭 시 동작
   const handleSearch = () => {
     console.log('검색 실행:', searchText);
-    const filtered = data.filter(item =>
-      item.medicineName.includes(searchText),
-    );
+    const filtered = filterData(data, searchText);
     console.log('Filtered data:', filtered);
     setFilteredData(filtered);
   };
 
+  // 기존 코드에서 updateData를 다음과 같이 수정
+  useEffect(() => {
+    const updateData = async () => {
+      const result = await fetchData();
+      setData(result);
+      setFilteredData(result);
+    };
+
+    updateData();
+  }, [typeFilter, sortOption, searchText]); // 데이터 변경이 있을 때만 호출
+
+  // 전체 보기 버튼 클릭 시 동작
   const handleShowAll = () => {
     console.log('전체 보기');
     setFilteredData(data);
     setSearchText('');
   };
 
-  // 정렬 버튼 클릭 시 동작
-  const handleSort = () => {
-    console.log('정렬 실행:', sortOption);
-    const sortedData = [...filteredData].sort((a, b) => {
+  const sortData = (data, sortOption) => {
+    return [...data].sort((a, b) => {
       if (sortOption === '등록순') {
-        return a.medicineName.localeCompare(b.medicineName);
+        const nameA = a.medicineName || a.productName;
+        const nameB = b.medicineName || b.productName;
+        return nameA.localeCompare(nameB);
       } else {
         return a.expirationDaysInNumber - b.expirationDaysInNumber;
       }
     });
+  };
+
+  const handleSort = () => {
+    console.log('정렬 실행:', sortOption);
+    const sortedData = sortData(filteredData, sortOption);
     console.log('Sorted data:', sortedData);
     setFilteredData(sortedData);
   };
@@ -101,23 +115,32 @@ const Home = () => {
   const renderItem = ({item}) => (
     <TouchableOpacity
       style={styles.itemContainer}
-      onPress={() => navigation.navigate('MedicineDetail', {item})}>
+      onPress={() =>
+        navigation.navigate('MedicineDetail', {
+          item,
+        })
+      }>
       <View style={styles.imagePlaceholder} />
       <View style={styles.textContainer}>
-        <Text style={styles.medicineName}>{item.medicineName}</Text>
-        <View style={styles.typeBadge(item.type)}>
+        <Text style={styles.medicineName}>
+          {item.medicineName || item.productName}
+        </Text>
+        <View style={styles.typeBadge(item.medicineType)}>
           <Text style={styles.typeText}>{item.medicineType}</Text>
         </View>
         <Text style={styles.dDay}>{item.expirationDays}</Text>
       </View>
     </TouchableOpacity>
   );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
           placeholder="약품명을 입력하세요"
+          value={searchText}
+          onChangeText={text => setSearchText(text)}
         />
         <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
           <Image
@@ -145,7 +168,7 @@ const Home = () => {
       <FlatList
         data={filteredData}
         renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
+        keyExtractor={(item, index) => `${item.id}-${index}`}
         contentContainerStyle={styles.listContainer}
         style={styles.flatList}
       />
@@ -244,8 +267,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  typeBadge: type => ({
-    backgroundColor: type === '상비약' ? '#4095FE' : '#1F2178',
+  typeBadge: medicineType => ({
+    backgroundColor: medicineType === '상비약' ? '#4095FE' : '#1F2178',
     borderRadius: 5,
     paddingHorizontal: 8,
     paddingVertical: 3,
