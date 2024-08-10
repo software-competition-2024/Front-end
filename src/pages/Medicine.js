@@ -10,6 +10,11 @@ const Medicine = () => {
     const [productName, setProductName] = useState('');
     const navigation = useNavigation();
 
+    // 초기 렌더링 시 productName 초기화
+    useEffect(() => {
+        setProductName('');
+    }, []);
+
     const handleCamera = async () => {
         const permission = await requestCameraPermission();
         if (!permission) {
@@ -43,8 +48,8 @@ const Medicine = () => {
     };
 
     const MedicineOCR = async (base64String) => {
-        const apiUrl = 'https://hgi9up5kcs.apigw.ntruss.com/custom/v1/33225/4847702c2400f6a73455378634f106c09f1e73c1dc53bffd1d4a2d8cc26be056/general';
-        const secretKey = 'Z2lteWJRZVRjdURneU1YcUlaQXBWSUN5SmlUQ3lhZ2g=';
+        const apiUrl = '';
+        const secretKey = '';
 
         try {
             const response = await axios.post(
@@ -61,7 +66,7 @@ const Medicine = () => {
                     lang: 'ko',
                     requestId: 'string',
                     resultType: 'string',
-                    timestamp: new Date().getTime(), // 타임스탬프를 밀리초로 전달
+                    timestamp: new Date().getTime(),
                     version: 'V1'
                 },
                 {
@@ -73,23 +78,26 @@ const Medicine = () => {
 
             const images = response.data.images;
             console.log("이미지정보", images)
-            let foundTylenol = false;
+            let foundMedicine = false;
 
             images.forEach(image => {
                 image.fields.forEach(field => {
-                    if (field.inferText.includes('타이레놀')) {
-                        foundTylenol = true;
-                        if(foundTylenol){
-                            const productName = "타이레놀"
-                            navigateToNext(productName);
-                        }
+                    if (field.inferText.includes('타이') || field.inferText.includes('레놀')) {
+                        console.log("타이레놀")
+                        navigateToNext("타이레놀");
+                    } else if (field.inferText.includes('후시')) {
+                        console.log("후시딘")
+                        navigateToNext("후시딘");
+                    } else if (field.inferText.includes('마데') || field.inferText.includes('카솔')) {
+                        console.log("마데카솔")
+                        navigateToNext("마데카솔");
+                    } else if (field.inferText.includes('파모') || field.inferText.includes('티딘')) {
+                        console.log("파모티딘")
+                        navigateToNext("파모티딘");
                     }
                 });
             });
 
-            
-
-            
         } catch (error) {
             console.log('Error in OCR request:', error.response?.data || error.message);
         }

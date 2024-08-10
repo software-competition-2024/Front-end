@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, Image, TouchableOpacity, Alert, Platform, ActivityIndicator } from 'react-native';
-import { launchCamera } from 'react-native-image-picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { requestCameraPermission } from '../utility/CameraPermission';
@@ -11,94 +11,133 @@ const Prescription = () => {
     const [ocrResponse, setOcrResponse] = useState(null);
     const navigation = useNavigation();
 
+    const handleImagePicker = async () => {
+        const options = {
+            title: '사진 선택',
+            storageOptions: {
+                skipBackup: true,
+                path: 'images',
+            },
+        };
+
+        Alert.alert(
+            '사진 선택',
+            '이미지를 선택하거나 카메라를 사용할 수 있습니다.',
+            [
+                {
+                    text: '카메라',
+                    onPress: () => handleCamera(),
+                },
+                {
+                    text: '갤러리',
+                    onPress: () => handleGallery(),
+                },
+                {
+                    text: '취소',
+                    style: 'cancel',
+                },
+            ],
+            { cancelable: true }
+        );
+    };
+
     const handleCamera = async () => {
         const permission = await requestCameraPermission();
         if (!permission) {
             Alert.alert('카메라 권한이 필요합니다.');
             return;
         }
+
         launchCamera(
             {
                 mediaType: 'photo',
                 maxWidth: 512,
                 maxHeight: 512,
-                includeBase64: true, // Base64 포함 여부
+                includeBase64: true,
                 quality: 1,
                 selectionLimit: 1,
             },
-            async (res) => {
-                if (res.didCancel) {
-                    console.log('User cancelled image picker');
-                } else if (res.errorCode) {
-                    console.log('ImagePicker Error: ', res.errorMessage);
-                } else {
-                    const asset = res.assets[0]; // 선택한 첫 번째 이미지
-                    setAvatar(asset.uri);
-                    console.log('Selected image URI:', asset.uri);
+            (res) => processImageResponse(res)
+        );
+    };
 
-                    // 로딩 상태 활성화
-                    setLoading(true);
+    const handleGallery = () => {
+        launchImageLibrary(
+            {
+                mediaType: 'photo',
+                maxWidth: 512,
+                maxHeight: 512,
+                includeBase64: true,
+                quality: 1,
+                selectionLimit: 1,
+            },
+            (res) => processImageResponse(res)
+        );
+    };
 
-                    // OCR 요청
-                    try {
-                        const base64String = asset.base64;
-                        if (!base64String) {
-                            Alert.alert('이미지 데이터를 가져오는 데 실패했습니다.');
-                            setLoading(false);
-                            return;
+    const processImageResponse = async (res) => {
+        if (res.didCancel) {
+            console.log('User cancelled image picker');
+        } else if (res.errorCode) {
+            console.log('ImagePicker Error: ', res.errorMessage);
+        } else {
+            const asset = res.assets[0];
+            setAvatar(asset.uri);
+            const base64String = asset.base64;
+            console.log('Selected image base64:', base64String);
+
+            // 로딩 상태 활성화
+            setLoading(true);
+
+            // OCR 요청
+            PrescriptionOCR(base64String);
+        }
+    };
+
+    const PrescriptionOCR = async (base64String) => {
+        const apiUrl = '';
+        const secretKey = '';
+
+        try {
+            const response = await axios.post(
+                apiUrl,
+                {
+                    images: [
+                        {
+                            format: 'jpg',
+                            name: 'medium',
+                            data: base64String,
+                            url: null
                         }
-                        console.log('base64String',base64String);
-
-                        const apiUrl = 'https://0k79d5u57m.apigw.ntruss.com/custom/v1/32942/47df2c2257a32e0e122c289df9fd459772e2c9f523358fa32538d9748db50757/infer';
-                        const secretKey = 'eWdXa3RpRm9KaWhHZldscmNLS05PUlp2SUZ4ZGF6S2Q=';
-
-                        const headers = {
-                            'Content-Type': 'application/json'
-                        };
-
-                        const body = {
-                            "version": "V1",
-                            "requestId": "test-request",
-                            "timestamp": Date.now(),
-                            "lang": "ko",
-                            "images": [
-                              {
-                                "format": "jpg",
-                                "name": "test 1",
-                                "data": base64String
-                              }
-                            ]
-                          };
-                    
-
-                        console.log("OCR request",body);
-                        const ocrResponse = await axios.post(
-                            apiUrl,
-                            body,
-                            {
-                                headers,
-                                auth: { username: secretKey, password: '' }
-                            }
-                        );
-                        
-                        const data = ocrResponse.data;
-
-                        // 응답 데이터 저장
-                        setOcrResponse(data);
-                        console.log('OCR Response Data:', data);
-
-                        // OCR 응답 후 페이지 전환
-                        navigation.navigate('PrescriptionScan', { avatar: asset.uri });
-                    } catch (error) {
-                        console.error('Error processing the OCR request:', error);
-                        Alert.alert('OCR 요청 처리 중 오류가 발생했습니다.');
-                    } finally {
-                        // 로딩 상태 비활성화
-                        setLoading(false);
+                    ],
+                    lang: 'ko',
+                    requestId: 'string',
+                    resultType: 'string',
+                    timestamp: new Date().getTime(),
+                    version: 'V1'
+                },
+                {
+                    headers: {
+                        'X-OCR-SECRET': secretKey
                     }
                 }
-            },
-        );
+            );
+
+            const data = response.data;
+
+            // 응답 데이터 저장
+            setOcrResponse(data);
+            console.log('OCR Response Data:', data);
+
+            // OCR 응답 후 페이지 전환
+            navigation.navigate('PrescriptionScan', { avatar: avatar, data: data });
+        } catch (error) {
+            console.error('Error processing the OCR request:', error);
+            Alert.alert('OCR 요청 처리 중 오류가 발생했습니다.');
+        } finally {
+            // 로딩 상태 비활성화
+            setLoading(false);
+        }
     };
 
     return (
@@ -106,24 +145,21 @@ const Prescription = () => {
             <View style={styles.upper_section}>
                 <Image style={styles.camera_img} source={require('../../assets/icon/camera.png')} />
             </View>
-            <TouchableOpacity onPress={handleCamera} style={styles.lower_section}>
+            <TouchableOpacity onPress={handleImagePicker} style={styles.lower_section}>
                 <Text style={styles.text}>처방전 스캔하기</Text>
             </TouchableOpacity>
             {loading && (
-                <ActivityIndicator
-                    size="large"
-                    color="#1967FF"
-                    style={styles.loader}
-                />
-            )}
-            {ocrResponse && (
-                <View style={styles.responseContainer}>
-                    <Text style={styles.responseText}>OCR Response:</Text>
-                    <Text style={styles.responseData}>{JSON.stringify(ocrResponse, null, 2)}</Text>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator
+                        size="large"
+                        color="#1967FF"
+                        style={styles.loader}
+                    />
+                    <Text style={styles.loadingText}>처방전을 스캔중입니다...</Text>
                 </View>
             )}
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -157,12 +193,22 @@ const styles = StyleSheet.create({
     text: {
         color: 'white',
     },
-    loader: {
+    loadingContainer: {
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        marginTop: -25,
-        marginLeft: -25,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white', // 로딩 중 배경색 화이트
+    },
+    loader: {
+        marginBottom: 10, // 텍스트와 로딩 인디케이터 사이에 여백 추가
+    },
+    loadingText: {
+        fontSize: 16,
+        color: '#333',
     },
     responseContainer: {
         marginTop: 20,
