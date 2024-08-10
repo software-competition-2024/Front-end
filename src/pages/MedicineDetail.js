@@ -1,4 +1,5 @@
 import React from 'react';
+import {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -70,6 +71,7 @@ const MedicineDetail = ({}) => {
         const result = await response.text();
         console.log('Delete result:', result);
         alert('약품이 성공적으로 삭제되었습니다.');
+
         navigation.goBack(); // 삭제 후 이전 화면으로 이동
       } else {
         console.error('Failed to delete medicine:', response.status);
@@ -132,7 +134,11 @@ const MedicineDetail = ({}) => {
               {item.type === '상비약' ? '복약안내' : '주의사항'}
             </Text>
             <View style={styles.notesBox}>
-              {medicineDetail.dosage || medicineDetail.precautions}
+              <Text>
+                {medicineDetail.dosage ||
+                  medicineDetail.precautions ||
+                  '정보가 없습니다.'}
+              </Text>
             </View>
           </View>
         </View>
