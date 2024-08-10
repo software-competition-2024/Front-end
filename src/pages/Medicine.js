@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, Image, TouchableOpacity, Alert, Platform } from 'react-native';
+import { Text, View, StyleSheet, Image, TouchableOpacity, Alert, Platform, ActivityIndicator } from 'react-native';
 import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { requestCameraPermission } from '../utility/CameraPermission';
@@ -8,9 +8,9 @@ import axios from 'axios';
 const Medicine = () => {
     const [avatar, setAvatar] = useState(null);
     const [productName, setProductName] = useState('');
+    const [loading, setLoading] = useState(false); // 로딩 상태 추가
     const navigation = useNavigation();
 
-    // 초기 렌더링 시 productName 초기화
     useEffect(() => {
         setProductName('');
     }, []);
@@ -41,6 +41,7 @@ const Medicine = () => {
                     setAvatar(asset.uri);
                     const base64String = asset.base64;
                     console.log('Selected image base64:', base64String);
+                    setLoading(true); // 로딩 시작
                     MedicineOCR(base64String);
                 }
             }
@@ -100,6 +101,8 @@ const Medicine = () => {
 
         } catch (error) {
             console.log('Error in OCR request:', error.response?.data || error.message);
+        } finally {
+            setLoading(false); // 로딩 종료
         }
     };
 
@@ -115,12 +118,21 @@ const Medicine = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.upper_section}>
-                <Image style={styles.camera_img} source={require('../../assets/icon/camera.png')} />
-            </View>
-            <TouchableOpacity onPress={handleCamera} style={styles.lower_section}>
-                <Text style={styles.text}>상비약 스캔하기</Text>
-            </TouchableOpacity>
+            {loading ? (
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color="#1967FF" />
+                    <Text style={styles.loadingText}>스캔 중입니다...</Text>
+                </View>
+            ) : (
+                <>
+                    <View style={styles.upper_section}>
+                        <Image style={styles.camera_img} source={require('../../assets/icon/camera.png')} />
+                    </View>
+                    <TouchableOpacity onPress={handleCamera} style={styles.lower_section}>
+                        <Text style={styles.text}>상비약 스캔하기</Text>
+                    </TouchableOpacity>
+                </>
+            )}
         </View>
     );
 };
@@ -155,7 +167,17 @@ const styles = StyleSheet.create({
     },
     text: {
         color: 'white',
-    }
+    },
+    loadingContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+    },
+    loadingText: {
+        marginTop: 10,
+        color: '#1967FF',
+        fontSize: 16,
+    },
 });
 
 export default Medicine;
