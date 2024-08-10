@@ -41,7 +41,7 @@ const MedicineScan = ({ route }) => {
             src = require('../../assets/image/secretone.png');
         } else if (productName.includes("마데")) {
             src = require('../../assets/image/madecasol.png');
-        } else if (productName.includes("파모티딘")) {
+        } else if (productName.includes("파모")) {
             src = require('../../assets/image/famotidine.png');
         } else {
             src = null; 

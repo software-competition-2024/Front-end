@@ -25,7 +25,7 @@ const NextSignUpStep = () => {
     }
 
     try {
-      await axios.post('http://192.168.45.246:8080/register', {
+      await axios.post('http://10.0.2.2:8080/register', {
         email,
         nickname,
         password,

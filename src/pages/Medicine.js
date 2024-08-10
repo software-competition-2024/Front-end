@@ -3,11 +3,17 @@ import { Text, View, StyleSheet, Image, TouchableOpacity, Alert, Platform } from
 import { launchCamera } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
 import { requestCameraPermission } from '../utility/CameraPermission';
+import axios from 'axios';
 
 const Medicine = () => {
     const [avatar, setAvatar] = useState(null);
     const [productName, setProductName] = useState('');
     const navigation = useNavigation();
+
+    // 초기 렌더링 시 productName 초기화
+    useEffect(() => {
+        setProductName('');
+    }, []);
 
     const handleCamera = async () => {
         const permission = await requestCameraPermission();
@@ -25,37 +31,87 @@ const Medicine = () => {
                 quality: 1,
                 selectionLimit: 1,
             },
-            async res => {  // 비동기 콜백 함수
+            async res => {
                 if (res.didCancel) {
                     console.log('User cancelled image picker');
                 } else if (res.errorCode) {
                     console.log('ImagePicker Error: ', res.errorMessage);
                 } else {
-                    const asset = res.assets[0]; // 선택한 첫 번째 이미지
+                    const asset = res.assets[0];
                     setAvatar(asset.uri);
-                    setProductName("타이레놀");
-                    console.log('Selected image URI:', asset.uri);
-
-                    // 임시로 productName을 설정
-                    navigateToNext(productName);
+                    const base64String = asset.base64;
+                    console.log('Selected image base64:', base64String);
+                    MedicineOCR(base64String);
                 }
             }
         );
     };
 
-    const navigateToNext = (productName) => {
-        while (productName) {
-            if (productName) { // 조건을 적절하게 설정해야 합니다
-                console.log("Navigating to MedicineScan with productName:", productName);
-                navigation.navigate("MedicineScan", {
-                    productName: productName,
-                    avatar: avatar
-                });
-            }  
-            break;
-        }
-    }
+    const MedicineOCR = async (base64String) => {
+        const apiUrl = '';
+        const secretKey = '';
 
+        try {
+            const response = await axios.post(
+                apiUrl,
+                {
+                    images: [
+                        {
+                            format: 'jpg',
+                            name: 'medium',
+                            data: base64String,
+                            url: null
+                        }
+                    ],
+                    lang: 'ko',
+                    requestId: 'string',
+                    resultType: 'string',
+                    timestamp: new Date().getTime(),
+                    version: 'V1'
+                },
+                {
+                    headers: {
+                        'X-OCR-SECRET': secretKey
+                    }
+                }
+            );
+
+            const images = response.data.images;
+            console.log("이미지정보", images)
+            let foundMedicine = false;
+
+            images.forEach(image => {
+                image.fields.forEach(field => {
+                    if (field.inferText.includes('타이') || field.inferText.includes('레놀')) {
+                        console.log("타이레놀")
+                        navigateToNext("타이레놀");
+                    } else if (field.inferText.includes('후시')) {
+                        console.log("후시딘")
+                        navigateToNext("후시딘");
+                    } else if (field.inferText.includes('마데') || field.inferText.includes('카솔')) {
+                        console.log("마데카솔")
+                        navigateToNext("마데카솔");
+                    } else if (field.inferText.includes('파모') || field.inferText.includes('티딘')) {
+                        console.log("파모티딘")
+                        navigateToNext("파모티딘");
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.log('Error in OCR request:', error.response?.data || error.message);
+        }
+    };
+
+    const navigateToNext = (productName) => {
+        if (productName) {
+            console.log('Navigating to MedicineScan with productName:', productName);
+            navigation.navigate('MedicineScan', {
+                productName: productName,
+                avatar: avatar
+            });
+        }
+    };
 
     return (
         <View style={styles.container}>
