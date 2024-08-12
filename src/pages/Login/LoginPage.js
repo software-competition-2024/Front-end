@@ -63,7 +63,6 @@ const LoginPage = () => {
           source={require('../../../assets/icon/medimate_logo.png')}
           style={styles.logo}
         />
-        <Text style={styles.logoText}>MediMate</Text>
       </View>
       <TextInput
         style={styles.input}
@@ -115,18 +114,12 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 30,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 150,
+    height: 150,
     backgroundColor: '#ccc',
     borderRadius: 50,
-    marginBottom: 10,
-  },
-  logoText: {
-    fontSize: 24,
-    fontWeight: 'bold',
   },
   input: {
     width: '100%',
