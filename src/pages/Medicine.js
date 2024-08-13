@@ -59,8 +59,8 @@ const Medicine = () => {
 
   const MedicineOCR = async base64String => {
     const apiUrl =
-      'https://hgi9up5kcs.apigw.ntruss.com/custom/v1/33225/4847702c2400f6a73455378634f106c09f1e73c1dc53bffd1d4a2d8cc26be056/general';
-    const secretKey = 'Z2lteWJRZVRjdURneU1YcUlaQXBWSUN5SmlUQ3lhZ2g=';
+      '';
+    const secretKey = '';
 
     try {
       const response = await axios.post(
