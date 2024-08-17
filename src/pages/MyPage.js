@@ -49,8 +49,15 @@ const MyPage = () => {
                         <Text style={styles.text}>Settings</Text>
                     </View>
                     <View style={styles.section2}>
-                        <Image style={{ width: 49, height: 48, marginRight: 25, marginTop: 20 }} source={require('../../assets/icon/notice.png')} />
-                        <Text style={styles.text}>Notion</Text>
+                        <Image style={{ width: 49, height: 48, marginRight: 25, marginTop: 30, }} source={require('../../assets/icon/logout.png')} />
+                        <Text style={{
+                            color: '#1F2178',
+                            fontSize: 17,
+                            fontWeight: 'bold',
+                            marginTop: 10,
+                            marginBottom: 20,
+                            marginRight: 15
+                        }}>Logout</Text>
                     </View>
                 </View>
             </View>

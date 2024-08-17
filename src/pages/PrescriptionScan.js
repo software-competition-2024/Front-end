@@ -19,14 +19,17 @@ const PrescriptionScan = ({ route }) => {
 
     // 처방약 등록하기 위한 정보
     const [request, setRequest] = useState({
-        medicineName: "",
-        expirationDate: "",
-        prescriptionDate: "2024-07-13", // 사용자의 처방날짜, 필요시 수정
-        dosageInstruction: "",
-        precautions: "걍먹어", // 필요시 수정
-        userEmail: "user2@example.com",
-        pushNotification: false,
-        dosageNotification: false
+        //"id":3,
+        "medicineName": "처방전약",
+        //"expirationDays": "D-180",
+        "expirationDate": "2024-12-31",
+        "prescriptionDate": "2024-07-13",
+        "dosageInstruction": "식후 30분이내",
+        "precautions": "걍먹어",
+        //"expirationDaysInNumber": 180,
+        "userEmail": "user@example.com",
+        "pushNotification": false,
+        "dosageNotification": false
     });
 
     // 데이터 파싱 및 상태 업데이트
@@ -60,10 +63,8 @@ const PrescriptionScan = ({ route }) => {
 
             setRequest(prevRequest => ({
                 ...prevRequest,
-                medicineName: parsedData.medicineName,
                 prescriptionDate: parsedData.prescriptionDate,
                 expirationDate: formattedExpirationDate, // Set expiration date
-                dosageInstruction: parsedData.dosageInstruction,
             }));
         }
     }, [data]);

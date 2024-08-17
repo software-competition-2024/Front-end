@@ -23,7 +23,7 @@ const Home = () => {
   // API 데이터 가져오기
   const fetchData = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwtToken');
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
       if (!token) {
         console.error('No JWT token found, redirecting to login.');
         navigation.replace('LoginPage');
