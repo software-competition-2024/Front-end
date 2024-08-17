@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -9,10 +9,11 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import {launchCamera} from 'react-native-image-picker';
-import {useNavigation} from '@react-navigation/native';
-import {requestCameraPermission} from '../utility/CameraPermission';
+import { launchCamera } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { requestCameraPermission } from '../utility/CameraPermission';
 import axios from 'axios';
+import Alram from '../component/Modal/Alram';
 
 const Medicine = () => {
   const [avatar, setAvatar] = useState(null);
@@ -58,8 +59,7 @@ const Medicine = () => {
   };
 
   const MedicineOCR = async base64String => {
-    const apiUrl =
-      '';
+    const apiUrl = '';
     const secretKey = '';
 
     try {
@@ -139,6 +139,7 @@ const Medicine = () => {
 
   return (
     <View style={styles.container}>
+      <Alram />
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#1967FF" />
