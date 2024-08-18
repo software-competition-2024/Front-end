@@ -129,7 +129,8 @@ const MedicineDetail = ({}) => {
         console.log('Delete result:', result);
         alert('약품이 성공적으로 삭제되었습니다.');
 
-        navigation.goBack(); // 삭제 후 이전 화면으로 이동
+        // Home 화면으로 navigate할 때 삭제된 약품 ID를 전달
+        navigation.navigate('Home', {deletedId: item.id});
       } else {
         console.error('Failed to delete medicine:', response.status);
         alert('약품 삭제에 실패했습니다.');
@@ -254,7 +255,7 @@ const MedicineDetail = ({}) => {
             <View style={styles.dateSection}>
               <Text style={styles.dateLabel}>사용기한</Text>
               <Text style={styles.dateValue}>
-                {medicineDetail.expirationDays}
+                {medicineDetail.expirationDate}
               </Text>
             </View>
             <View style={styles.dateSection}>

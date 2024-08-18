@@ -10,15 +10,23 @@ import {
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Home = () => {
+const Home = ({route}) => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState('');
-  const [typeFilter, setTypeFilter] = useState('전체');
+  const [dropdown, setDropdown] = useState(false);
+  const [value, setValue] = useState('전체');
+  const [items, setItems] = useState([
+    {label: '전체', value: '전체'},
+    {label: '처방약', value: '처방약'},
+    {label: '상비약', value: '상비약'},
+  ]);
   const [sortOption, setSortOption] = useState('등록순');
   const navigation = useNavigation();
+  const {deletedId} = route.params || {}; // 삭제된 약품의 ID를 받음
 
   // API 데이터 가져오기
   const fetchData = async () => {
@@ -31,7 +39,7 @@ const Home = () => {
       }
 
       const response = await fetch(
-        `http://10.0.2.2:8080/home?type=${typeFilter}&sort=${sortOption}&search=${searchText}`,
+        `http://10.0.2.2:8080/home?type=${value}&sort=${sortOption}&search=${searchText}`,
         {
           headers: {Authorization: `Bearer ${token}`},
         },
@@ -50,12 +58,6 @@ const Home = () => {
       return [];
     }
   };
-  // 데이터를 최신 상태로 유지하기 위해 화면에 다시 포커스될 때마다 데이터를 새로 가져옵니다.
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchData();
-    }, [typeFilter, sortOption]),
-  );
 
   const filterData = (data, query) => {
     const searchQuery = query.trim().toLowerCase();
@@ -74,24 +76,42 @@ const Home = () => {
     console.log('Filtered data:', filtered);
     setFilteredData(filtered);
   };
+  // 데이터를 최신 상태로 유지하기 위해 화면에 다시 포커스될 때마다 데이터를 새로 가져옵니다.
+  useFocusEffect(
+    React.useCallback(() => {
+      const updateData = async () => {
+        const result = await fetchData();
+        // 삭제된 아이템이 있는 경우, 데이터를 필터링하여 제외
+        const filteredByDeletion = deletedId
+          ? result.filter(item => item.id !== deletedId)
+          : result;
+
+        // 상태에 데이터 설정
+        setData(filteredByDeletion);
+      };
+
+      updateData();
+    }, [deletedId]),
+  );
 
   // 기존 코드에서 updateData를 다음과 같이 수정
   useEffect(() => {
-    const updateData = async () => {
-      const result = await fetchData();
-      setData(result);
-      setFilteredData(result);
+    const filterAndSortData = () => {
+      // 선택된 약품 종류 필터링
+      const filteredResult =
+        value === '전체'
+          ? data
+          : data.filter(item => item.medicineType === value);
+
+      // 정렬 적용
+      const sortedResult = sortData(filteredResult, sortOption);
+
+      // 필터링 및 정렬된 데이터를 상태로 설정
+      setFilteredData(sortedResult);
     };
 
-    updateData();
-  }, [typeFilter, sortOption, searchText]); // 데이터 변경이 있을 때만 호출
-
-  // 전체 보기 버튼 클릭 시 동작
-  const handleShowAll = () => {
-    console.log('전체 보기');
-    setFilteredData(data);
-    setSearchText('');
-  };
+    filterAndSortData();
+  }, [data, value, sortOption, searchText]);
 
   const sortData = (data, sortOption) => {
     return [...data].sort((a, b) => {
@@ -178,10 +198,19 @@ const Home = () => {
       </View>
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>약품 목록</Text>
+        <DropDownPicker
+          style={styles.dropdownpicker}
+          containerStyle={styles.dropdownContainer}
+          open={dropdown}
+          value={value}
+          items={items}
+          placeholder="전체"
+          setOpen={setDropdown}
+          setValue={setValue}
+          setItems={setItems}
+          onChangeValue={() => console.log('Selected:', value)}
+        />
         <View style={styles.filterButtons}>
-          <TouchableOpacity style={styles.filterButton} onPress={handleShowAll}>
-            <Text>전체</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.sortButton} onPress={handleSort}>
             <Text>등록순</Text>
           </TouchableOpacity>
@@ -245,6 +274,21 @@ const styles = StyleSheet.create({
   filterButtons: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  dropdownpicker: {
+    backgroundColor: '#fff',
+    borderColor: '#1F2178',
+    borderWidth: 1.5,
+    borderRadius: 20,
+    fontSize: 10,
+    minHeight: 33,
+    maxHeight: 33,
+    justifyContent: 'center', // 텍스트가 가운데에 오도록 정렬
+  },
+  dropdownContainer: {
+    flex: 1, // 가로 공간을 최대한 활용
+    marginLeft: 15,
+    marginRight: 5, // 옆에 있는 버튼들과 간격을 조정
   },
   filterButton: {
     marginRight: 5,
