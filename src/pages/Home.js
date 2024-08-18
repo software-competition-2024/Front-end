@@ -112,26 +112,53 @@ const Home = () => {
     setFilteredData(sortedData);
   };
 
-  const renderItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() =>
-        navigation.navigate('MedicineDetail', {
-          item,
-        })
-      }>
-      <View style={styles.imagePlaceholder} />
-      <View style={styles.textContainer}>
-        <Text style={styles.medicineName}>
-          {item.medicineName || item.productName}
-        </Text>
-        <View style={styles.typeBadge(item.medicineType)}>
-          <Text style={styles.typeText}>{item.medicineType}</Text>
+  const renderItem = ({item}) => {
+    // 이미지 경로 설정
+    let imageSource;
+    if (item.medicineName.includes('타이')) {
+      imageSource = require('../../assets/image/tylenol.png');
+    } else if (item.medicineName.includes('후시')) {
+      imageSource = require('../../assets/image/fushidin.png');
+    } else if (item.medicineName.includes('시크릿')) {
+      imageSource = require('../../assets/image/secretone.png');
+    } else if (item.medicineName.includes('마데')) {
+      imageSource = require('../../assets/image/madecasol.png');
+    } else if (item.medicineName.includes('파모')) {
+      imageSource = require('../../assets/image/famotidine.png');
+    } else if (item.medicineType === '처방약') {
+      imageSource = require('../../assets/image/prescription.jpg'); // 기본 플레이스홀더 이미지
+    } else {
+      imageSource = require('../../assets/icon/placeholder.png');
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() =>
+          navigation.navigate('MedicineDetail', {
+            item,
+          })
+        }>
+        <Image
+          style={styles.imagePlaceholder} // 스타일을 업데이트 하여 placeholder에서 실제 이미지로 변경
+          source={imageSource} // 설정된 이미지 경로를 사용
+        />
+        <View style={styles.textContainer}>
+          <Text style={styles.medicineName}>
+            {item.medicineName || '이름 없음'}
+          </Text>
+          <View style={styles.typeBadge(item.medicineType)}>
+            <Text style={styles.typeText}>
+              {item.medicineType || '유형 없음'}
+            </Text>
+          </View>
+          <Text style={styles.dDay}>
+            {item.expirationDays || '만료일 없음'}
+          </Text>
         </View>
-        <Text style={styles.dDay}>{item.expirationDays}</Text>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -256,7 +283,7 @@ const styles = StyleSheet.create({
   },
   imagePlaceholder: {
     width: 100,
-    height: 50,
+    height: 80,
     backgroundColor: '#ccc',
     marginRight: 10,
   },
