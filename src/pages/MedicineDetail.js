@@ -67,7 +67,7 @@ const MedicineDetail = ({}) => {
   // 약품 상세 정보를 가져오는 함수
   const fetchMedicineDetail = async () => {
     try {
-      const token = await AsyncStorage.getItem('jwtToken');
+      const jwtToken = await AsyncStorage.getItem('jwtToken');
       if (!token) {
         console.error('No JWT token found, redirecting to login.');
         navigation.replace('LoginPage');
@@ -118,7 +118,7 @@ const MedicineDetail = ({}) => {
           ? `/home/${item.id}/prescription`
           : `/home/${item.id}/over_the_counter`;
 
-      const response = await fetch(`http://10.0.2.2:8080${endpoint}`, {
+      const response = await fetch(`http://192.168.45.187:8080${endpoint}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,

@@ -118,7 +118,7 @@ const MainScreen = () => {
 };
 
 const App = () => {
-  const [isLogged, setIsLogged] = useState(false);
+  const [isLogged, setIsLogged] = useState(true);
 
   return (
     <NavigationContainer>

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -9,10 +9,11 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import {launchCamera} from 'react-native-image-picker';
-import {useNavigation} from '@react-navigation/native';
-import {requestCameraPermission} from '../utility/CameraPermission';
+import { launchCamera } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
+import { requestCameraPermission } from '../utility/CameraPermission';
 import axios from 'axios';
+import Alram from '../component/Modal/Alram';
 
 const Medicine = () => {
   const [avatar, setAvatar] = useState(null);
@@ -58,9 +59,8 @@ const Medicine = () => {
   };
 
   const MedicineOCR = async base64String => {
-    const apiUrl =
-      'https://hgi9up5kcs.apigw.ntruss.com/custom/v1/33225/4847702c2400f6a73455378634f106c09f1e73c1dc53bffd1d4a2d8cc26be056/general';
-    const secretKey = 'Z2lteWJRZVRjdURneU1YcUlaQXBWSUN5SmlUQ3lhZ2g=';
+    const apiUrl = '';
+    const secretKey = '';
 
     try {
       const response = await axios.post(
@@ -139,6 +139,7 @@ const Medicine = () => {
 
   return (
     <View style={styles.container}>
+      <Alram />
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#1967FF" />
