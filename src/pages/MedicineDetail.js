@@ -20,7 +20,7 @@ const MedicineDetail = ({}) => {
   // 약품 상세 정보를 가져오는 함수
   const fetchMedicineDetail = async () => {
     try {
-      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const jwtToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjIyMkBleGFtcGxlLmNvbSIsImlhdCI6MTcyMzk3NTgzMSwiZXhwIjoxNzIzOTc3NjMxfQ.-LWx1XMl4_IWp5YBVWc8q4Ut_xcXDrEn-zvFbhxQdLM";
       if (!token) {
         console.error('No JWT token found, redirecting to login.');
         navigation.replace('LoginPage');
@@ -32,7 +32,7 @@ const MedicineDetail = ({}) => {
           ? `/home/${item.id}/prescription`
           : `/home/${item.id}/over_the_counter`;
 
-      const response = await fetch(`http://10.0.2.2:8080${endpoint}`, {
+      const response = await fetch(`http://192.168.45.81:8080${endpoint}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

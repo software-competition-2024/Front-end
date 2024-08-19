@@ -5,7 +5,7 @@ import instance from './Axios';
 export const AddMedicine = async request => {
   console.log('요청에 이용되는 request', request);
   const jwtToken =
-    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjEyMjIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzIzODg1MDg2LCJleHAiOjE3MjM4ODY4ODZ9.29lv1aNDLF5jUNyDHDbPymeYM45kzUH7Tptn0w2v9_I";
+    "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjIyMkBleGFtcGxlLmNvbSIsImlhdCI6MTcyMzk3NTgzMSwiZXhwIjoxNzIzOTc3NjMxfQ.-LWx1XMl4_IWp5YBVWc8q4Ut_xcXDrEn-zvFbhxQdLM";
   console.log('jwtToken', jwtToken);
   try {
     if (!jwtToken) {
@@ -33,7 +33,7 @@ export const AddMedicine = async request => {
 export const GetMedicineDB = async productName => {
   try {
     const jwtToken =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjEyMjIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzIzODg1MDg2LCJleHAiOjE3MjM4ODY4ODZ9.29lv1aNDLF5jUNyDHDbPymeYM45kzUH7Tptn0w2v9_I";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjIyMkBleGFtcGxlLmNvbSIsImlhdCI6MTcyMzk3NTgzMSwiZXhwIjoxNzIzOTc3NjMxfQ.-LWx1XMl4_IWp5YBVWc8q4Ut_xcXDrEn-zvFbhxQdLM";
     const response = await instance.get(`/api/medicine-info/${productName}`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
@@ -52,7 +52,7 @@ export const AddPrescription = async request => {
   try {
     console.log("요청 정보", request)
     const jwtToken =
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjEyMjIyQGV4YW1wbGUuY29tIiwiaWF0IjoxNzIzODg1MDg2LCJleHAiOjE3MjM4ODY4ODZ9.29lv1aNDLF5jUNyDHDbPymeYM45kzUH7Tptn0w2v9_I";
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjIyMkBleGFtcGxlLmNvbSIsImlhdCI6MTcyMzk3NTgzMSwiZXhwIjoxNzIzOTc3NjMxfQ.-LWx1XMl4_IWp5YBVWc8q4Ut_xcXDrEn-zvFbhxQdLM";
     const response = await instance.post(
       '/api/pst-medicines',
       request, //객체 형태의 request전달하기

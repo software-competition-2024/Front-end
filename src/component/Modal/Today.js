@@ -9,7 +9,7 @@ import {
   Image
 } from 'react-native';
 
-const Alram = ({ visible, onClose }) => {
+const Today = ({ visible, onClose }) => {
   return (
     <Modal
       visible={visible}
@@ -20,20 +20,17 @@ const Alram = ({ visible, onClose }) => {
         <View style={styles.modalBackground}>
           <TouchableWithoutFeedback>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>사용기한 임박 약품</Text>
-              
-              
-              
+              <Text style={styles.modalTitle}>오늘의 복약안내</Text>
               <View style={styles.section}>
-                <Text style={styles.sectionTitle}>상비약</Text>
+                <Text style={styles.sectionTitle}>처방전약</Text>
                 <View style={styles.boxContainer}>
                   <View style={styles.horizontalContainer}>
-                    <Text style={styles.medicineText}>파모티딘</Text>
-                    <Text style={styles.expirationText}>D-6</Text>
+                    <Text style={styles.medicineText}>아침 점심 저녁</Text>
+                    <Text style={styles.expirationText}>식후 30분 </Text>
                   </View>
                   <Image 
                     style={styles.imageStyle} 
-                    source={require("../../../assets/image/famotidine.png")}
+                    source={require("../../../assets/icon/medicine_img.png")}
                   />
                 </View>
               </View>
@@ -152,4 +149,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Alram;
+export default Today;

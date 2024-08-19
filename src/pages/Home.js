@@ -23,7 +23,9 @@ const Home = () => {
   // API 데이터 가져오기
   const fetchData = async () => {
     try {
-      const jwtToken = await AsyncStorage.getItem('jwtToken');
+      const jwtToken = 
+      "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyMTIxMjIyMkBleGFtcGxlLmNvbSIsImlhdCI6MTcyMzk3NTgzMSwiZXhwIjoxNzIzOTc3NjMxfQ.-LWx1XMl4_IWp5YBVWc8q4Ut_xcXDrEn-zvFbhxQdLM"
+      ;
       if (!token) {
         console.error('No JWT token found, redirecting to login.');
         navigation.replace('LoginPage');
@@ -31,7 +33,7 @@ const Home = () => {
       }
 
       const response = await fetch(
-        `http://10.0.2.2:8080/home?type=${typeFilter}&sort=${sortOption}&search=${searchText}`,
+        `http://192.168.45.81:8080/home?type=${typeFilter}&sort=${sortOption}&search=${searchText}`,
         {
           headers: {Authorization: `Bearer ${token}`},
         },
